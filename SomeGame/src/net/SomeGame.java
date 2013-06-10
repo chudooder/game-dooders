@@ -12,6 +12,7 @@ public class SomeGame extends Game {
 
 
 	public static void main(String[] args) {
+		System.out.println("asdf");
 		SomeGame game = new SomeGame();
 		game.init(640,480);
 		game.loop();

@@ -1,0 +1,10 @@
+Requirements List
+
+It should...
+- allow users to move their characters
+- allow users to shoot (needs clarification)
+- set an amount of time for each iteration of the game
+- save the actions of the character
+- use previous actions in the next iteration
+- stop after a certain number of iterations
+- evaluate a winner of the game
