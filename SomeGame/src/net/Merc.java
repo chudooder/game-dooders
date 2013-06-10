@@ -15,6 +15,8 @@ import chu.engine.Stage;
 
 public class Merc extends Entity{
 	
+	//Something
+	
 	private static Texture texture;
 	private float angle;
 	
