@@ -81,7 +81,7 @@ public abstract class Game {
 		}
 	}
 	
-	public HashMap<Integer, Boolean> getKeys() {
+	public static HashMap<Integer, Boolean> getKeys() {
 		return keys;
 	}
 

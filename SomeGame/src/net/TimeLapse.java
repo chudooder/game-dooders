@@ -6,21 +6,26 @@ import static org.lwjgl.opengl.GL11.*;
 import chu.engine.Game;
 import chu.engine.Stage;
 
-public class SomeGame extends Game {
+public class TimeLapse extends Game {
 	
-	private Stage currentStage;
+	private TimeLapseStage currentStage;
 
 
 	public static void main(String[] args) {
-		System.out.println("asdf");
-		SomeGame game = new SomeGame();
+		System.out.println("Controls:");
+		System.out.println("WASD: Move around");
+		System.out.println("F1: Start recording");
+		System.out.println("F2: Stop recording");
+		System.out.println("F3: Play back recording");
+		System.out.println("F4: Clear recording");
+		TimeLapse game = new TimeLapse();
 		game.init(640,480);
 		game.loop();
 	}
 	
 	public void init(int width, int height) {
 		super.init(width, height);
-		currentStage = new Stage();
+		currentStage = new TimeLapseStage();
 		currentStage.addEntity(new Merc(currentStage, 100, 100));
 	}
 	

@@ -17,8 +17,10 @@ public class Merc extends Entity{
 	
 	//Something
 	
-	private static Texture texture;
+	public static Texture texture;
 	private float angle;
+	private MercRecord record;
+	private boolean recording;
 	
 	static {
 		try {
@@ -29,16 +31,17 @@ public class Merc extends Entity{
 		}
 	}
 
-	public Merc(Stage s, int x, int y) {
+	public Merc(TimeLapseStage s, int x, int y) {
 		super(s, x, y);
 		sprite.addAnimation("LOOP", texture);
+		record = new MercRecord(this);
 	}
 
 	@Override
 	public boolean doInput() {
 		
 		int deltaX = Mouse.getX()-x;
-		int deltaY = (SomeGame.getWindowHeight() - Mouse.getY())-y;
+		int deltaY = (TimeLapse.getWindowHeight() - Mouse.getY())-y;
 		angle = (float) Math.toDegrees(Math.atan2(deltaY, deltaX));
 		if(deltaY < 0) angle += 360;
 		
@@ -46,6 +49,35 @@ public class Merc extends Entity{
 		if(Keyboard.isKeyDown(Keyboard.KEY_S)) y += 2; 
 		if(Keyboard.isKeyDown(Keyboard.KEY_A)) x -= 2; 
 		if(Keyboard.isKeyDown(Keyboard.KEY_D)) x += 2;
+		
+		HashMap<Integer, Boolean> keys = Game.getKeys();
+		for(int key : keys.keySet()) {
+			if(key == Keyboard.KEY_F1 && keys.get(key)) { 
+				recording = true;
+				System.out.println("Started recording.");
+			}
+			
+			if(key == Keyboard.KEY_F2 && keys.get(key)) {
+				recording = false;
+				System.out.println("Stopped recording.");
+			}
+			
+			if(key == Keyboard.KEY_F3 && keys.get(key)) {
+				record.playback();
+				System.out.println("Playing back record of length "+record.length()+" frames.");
+			}
+			
+			if(key == Keyboard.KEY_F4 && keys.get(key)) { 
+				record.clear();
+				System.out.println("Record cleared.");
+			}
+		}
+		
+		//Recording movement
+		if(recording) {
+			record.addFrame(x, y, angle);
+			//System.out.println(x+" "+y+" "+angle);
+		}
 
 		return true;
 	}
