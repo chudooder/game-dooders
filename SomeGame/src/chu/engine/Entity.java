@@ -26,6 +26,7 @@ public abstract class Entity implements Comparable<Entity> {
 	public int updatePriority;
 	public int renderPriority;
 	public Sprite sprite;
+	public Hitbox hitbox;
 	public Stage stage;
 	public boolean willBeRemoved;
 
