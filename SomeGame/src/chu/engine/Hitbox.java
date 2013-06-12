@@ -16,7 +16,8 @@ public abstract class Hitbox {
 	protected int offsetX;
 	protected int offsetY;
 	
-	public Hitbox(int x, int y) {
+	public Hitbox(Entity p, int x, int y) {
+		parent = p;
 		offsetX = x;
 		offsetY = y;
 	}
@@ -38,12 +39,10 @@ public abstract class Hitbox {
 	 * @return
 	 */
 	public abstract boolean pointCollision(int x, int y, int x0, int y0);
+	//self explanatory hopefully
+	public abstract boolean lineCollision(int a, int b, int c, int d);
+	public abstract boolean lineCollision(int a, int b, int c, int d, int x, int y);
 	
-	/**
-	 * Does a collision check with the hitbox of the other entity
-	 * @param other: other entity to check
-	 * @return
-	 */
-	public abstract boolean entityCollision(Entity other);
+	
 	
 }

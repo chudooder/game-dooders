@@ -4,6 +4,7 @@ import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 
 import chu.engine.Game;
+import chu.engine.RectangleHitbox;
 import chu.engine.Stage;
 
 public class TimeLapse extends Game {
@@ -27,6 +28,13 @@ public class TimeLapse extends Game {
 		super.init(width, height);
 		currentStage = new TimeLapseStage();
 		currentStage.addEntity(new Merc(currentStage, 100, 100));
+		
+		//Some testing code for the hitboxes. Delete later
+		RectangleHitbox hitbox = new RectangleHitbox(new Merc(currentStage, 0, 0), 0, 0, 32, 32);
+		boolean b = hitbox.lineCollision(16, 50, 40, 8);
+		System.out.println(b);
+		
+		
 	}
 	
 	public void loop() {
