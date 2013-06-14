@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.Game;
+import chu.engine.Hitbox;
 import chu.engine.Stage;
 
 public class TimeLapseStage extends Stage {
@@ -30,7 +31,8 @@ public class TimeLapseStage extends Stage {
 		for(int a = 0; a < ent.length; a++) {
 			for(int b = a+1; b < ent.length; b++) {
 				if(ent[a] instanceof Collideable && ent[b] instanceof Collideable) {
-					((Collideable)ent[a]).doCollisionWith(ent[b]);
+					if(Hitbox.collisionExists(ent[a], ent[b]))
+						((Collideable)ent[a]).doCollisionWith(ent[b]);
 				}
 			}
 		}
