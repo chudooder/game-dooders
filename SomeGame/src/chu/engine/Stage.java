@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 
 public class Stage {
-	private PriorityQueue<Entity> entities;
+	protected PriorityQueue<Entity> entities;
 	private Stack<Entity> addStack;
 	private Stack<Entity> removeStack;
 	private int[][] terrainMap;

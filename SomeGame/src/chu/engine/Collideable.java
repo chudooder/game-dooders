@@ -7,5 +7,6 @@ public interface Collideable {
 	 * @param e
 	 * @return
 	 */
-	public void doCollisionWith(Entity[] e);
+
+	public void doCollisionWith(Entity entity);
 }

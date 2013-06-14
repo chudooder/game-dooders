@@ -9,11 +9,12 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.Game;
 import chu.engine.Stage;
 
-public class Merc extends Entity{
+public class Merc extends Entity implements Collideable {
 	
 	//Something
 	
@@ -85,6 +86,13 @@ public class Merc extends Entity{
 	@Override
 	public void render() {
 		sprite.renderRotated(x, y, angle);
+	}
+
+	@Override
+	public void doCollisionWith(Entity e) {
+		if(e instanceof Wall) {
+			
+		}
 	}
 
 }

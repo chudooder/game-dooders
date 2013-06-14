@@ -4,6 +4,7 @@ import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 
 import chu.engine.Game;
+import chu.engine.Hitbox;
 import chu.engine.RectangleHitbox;
 import chu.engine.Stage;
 
@@ -30,9 +31,13 @@ public class TimeLapse extends Game {
 		currentStage.addEntity(new Merc(currentStage, 100, 100));
 		
 		//Some testing code for the hitboxes. Delete later
-		RectangleHitbox hitbox = new RectangleHitbox(new Merc(currentStage, 0, 0), 0, 0, 32, 32);
-		boolean b = hitbox.lineCollision(16, 50, 40, 8);
-		System.out.println(b);
+		Merc a = new Merc(currentStage, 0,0);
+		a.hitbox = new RectangleHitbox(a, 0, 0, 32, 32);
+		
+		Merc b = new Merc(currentStage, 16, 16);
+		b.hitbox = new RectangleHitbox(a, 0, 0, 32, 32);
+		
+		System.out.println(Hitbox.collisionExists(a, b));
 		
 		
 	}
