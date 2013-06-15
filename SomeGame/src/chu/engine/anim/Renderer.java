@@ -6,6 +6,13 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 
 public class Renderer {
+	
+	private static Camera camera;
+	
+	static {
+		camera = new Camera(null, 0, 0);
+	}
+	
 	/***
 	 * Draws the given subtexture at the given coordinates.
 	 * @param t			Texture to be drawn
@@ -60,18 +67,21 @@ public class Renderer {
 	    glEnd();
 	    
 	    glPopMatrix();
+	    
 	}
 	
 	public static void drawSquare(float x, float y, float s, Color c) {
 		c.bind();
 		glColor4f(c.r, c.g, c.b, c.a);
-		glLoadIdentity();
+		
+		//glLoadIdentity();
 		glBegin(GL_QUADS);
 			glVertex2f(x, y);
 			glVertex2f(x+s, y);
 			glVertex2f(x+s, y+s);
 			glVertex2f(x, y+s);
 		glEnd();
+		
 	}
 	
 	public static void drawLine(int x0, int y0, int x, int y, float width, Color c) {
@@ -80,11 +90,21 @@ public class Renderer {
 		glEnable(GL_LINE_SMOOTH);
 		glLineWidth(width);
 		glColor4f(c.r, c.g, c.b, c.a);
-		glLoadIdentity();
+		
+		//glLoadIdentity();
 		glBegin(GL_LINES);
 			glVertex2f(x0,y0);
 			glVertex2f(x,y);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
+		
+	}
+	
+	public static void setCamera(Camera c) {
+		camera = c;
+	}
+
+	public static Camera getCamera() {
+		return camera;
 	}
 }

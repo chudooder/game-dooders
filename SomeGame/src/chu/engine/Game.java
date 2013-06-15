@@ -40,9 +40,6 @@ public abstract class Game {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glViewport(0, 0, windowWidth, windowHeight);
-		glMatrixMode(GL_MODELVIEW);
-		
-		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0, windowWidth, windowHeight, 0, 1, -1);		//It's basically a camera

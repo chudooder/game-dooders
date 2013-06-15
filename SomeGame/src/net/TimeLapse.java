@@ -1,5 +1,6 @@
 package net;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -7,6 +8,8 @@ import chu.engine.Game;
 import chu.engine.Hitbox;
 import chu.engine.RectangleHitbox;
 import chu.engine.Stage;
+import chu.engine.anim.Camera;
+import chu.engine.anim.Renderer;
 
 public class TimeLapse extends Game {
 	
@@ -28,7 +31,10 @@ public class TimeLapse extends Game {
 	public void init(int width, int height) {
 		super.init(width, height);
 		currentStage = new TimeLapseStage();
-		currentStage.addEntity(new Merc(currentStage, 100, 100));
+		Merc player = new Merc(currentStage, 320, 240);
+		currentStage.addEntity(player);
+		Renderer.setCamera(new Camera(player, 16, 16));
+		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
 		//Some testing code for the hitboxes. Delete later
 		Merc a = new Merc(currentStage, 0,0);
@@ -55,7 +61,10 @@ public class TimeLapse extends Game {
 				if(!paused) {
 					currentStage.update();
 				}
+				glPushMatrix();
+				Renderer.getCamera().lookThrough();
 				currentStage.render();
+				glPopMatrix();
 				Display.update();
 			}
 			
@@ -63,6 +72,16 @@ public class TimeLapse extends Game {
 		}
 		
 		Display.destroy();
+	}
+	
+	//Returns the mouse pixel offset by the camera
+	public static int getMouseX() {
+		return Mouse.getX() + Renderer.getCamera().getX() - getWindowWidth()/2;
+	}
+	
+	public static int getMouseY() {
+		return (getWindowHeight() - Mouse.getY())
+				+ Renderer.getCamera().getY() - getWindowHeight()/2;
 	}
 
 }

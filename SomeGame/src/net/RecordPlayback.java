@@ -17,7 +17,7 @@ public class RecordPlayback extends Entity {
 		texture = Merc.texture;
 	}
 
-	public RecordPlayback(Stage stage, MercRecord record) {
+	public RecordPlayback(TimeLapseStage stage, MercRecord record) {
 		super(stage, 0, 0);
 		this.record = record;
 		frame = 0;
@@ -38,8 +38,13 @@ public class RecordPlayback extends Entity {
 	}
 
 	@Override
-	public boolean doInput() {
-		return false;
+	public void beginStep() {
+		
+	}
+
+	@Override
+	public void endStep() {
+		
 	}
 
 }

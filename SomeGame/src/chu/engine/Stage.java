@@ -3,22 +3,23 @@ package chu.engine;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.TreeSet;
 
 public class Stage {
-	protected PriorityQueue<Entity> entities;
+	protected TreeSet<Entity> entities;
 	private Stack<Entity> addStack;
 	private Stack<Entity> removeStack;
-	private int[][] terrainMap;
+	private TreeSet<Entity> renderQueue;
 	
 	public Stage() {
-		entities = new PriorityQueue<>();
+		entities = new TreeSet<>(new SortByUpdate());
+		renderQueue = new TreeSet<>(new SortByRender());
 		addStack = new Stack<>();
 		removeStack = new Stack<>();
-		terrainMap = new int[40][40];
 	}
 	
-	public PriorityQueue<Entity> getAllEntities() {
-		PriorityQueue<Entity> ans = new PriorityQueue<>();
+	public TreeSet<Entity> getAllEntities() {
+		TreeSet<Entity> ans = new TreeSet<>();
 		for(Entity e : entities) {
 			ans.add(e);
 		}
@@ -29,41 +30,27 @@ public class Stage {
 		return ans;
 	}
 	
-	/*
-	public Entity getEntity(int i) {
-		return entities.get(i);
-	}
-	*/
-	
 	public void addEntity(Entity e) {
-		addStack.push(e);
-	}
-	
-	public void addEntity(Entity e, int xx, int yy) {
-		e.x = xx;
-		e.y = yy;
 		addStack.push(e);
 	}
 	
 	
 	public void removeEntity(Entity e) {
-		//e.x = -100;
-		//e.y = -100;
 		e.flagForRemoval();
 		if(e != null) removeStack.push(e);
 	}
 	
 	public void update() {
 		for(Entity e : entities) {
-			e.update();
-			e.doInput();
+			e.onStep();
+			e.beginStep();
 		}
 		processAddStack();
 		processRemoveStack();
 	}
 
 	public void render() {
-		for(Entity e : entities) {
+		for(Entity e : renderQueue) {
 			e.render();
 		}
 	}
@@ -114,7 +101,8 @@ public class Stage {
 	public void processAddStack() {
 		while(!addStack.isEmpty()) {
 			Entity e = addStack.pop();
-			entities.add(e);
+			System.out.println(entities.add(e) +" "+ e.getClass().getCanonicalName());
+			renderQueue.add(e);
 		}
 	}
 	
@@ -126,15 +114,9 @@ public class Stage {
 		while(!removeStack.isEmpty()) {
 			Entity e = removeStack.pop();
 			entities.remove(e);
+			renderQueue.remove(e);
 			addStack.remove(e);		//Otherwise some weird shit happens and entities get stuck in limbo
 		}
 	}
 	
-	public void setTerrainMap(int x, int y, int b) {
-		terrainMap[x/16][y/16] = b;
-	}
-	
-	public int terrainAt(int x, int y) {
-		return terrainMap[x/16][y/16];
-	}
 }

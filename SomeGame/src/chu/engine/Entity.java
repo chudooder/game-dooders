@@ -1,5 +1,6 @@
 package chu.engine;
 
+import net.TimeLapseStage;
 import chu.engine.anim.Sprite;
 
 public abstract class Entity implements Comparable<Entity> {
@@ -10,11 +11,7 @@ public abstract class Entity implements Comparable<Entity> {
 	public static final int UPDATE_PRIORITY_ENEMY = 3;
 	
 	public static final int RENDER_PRIORITY_TERRAIN = 0;
-		public static final int RENDER_PRIORITY_SPAWNER = 1;
-	public static final int RENDER_PRIORITY_FRIENDLY_PROJECTILE = 10;
-	public static final int RENDER_PRIORITY_ENEMY_PROJECTILE = 20;
 	public static final int RENDER_PRIORITY_PLAYER = 30;
-		public static final int RENDER_PRIORITY_KEY = 31;
 	public static final int RENDER_PRIORITY_ENEMY = 40;
 
 
@@ -27,7 +24,7 @@ public abstract class Entity implements Comparable<Entity> {
 	public int renderPriority;
 	public Sprite sprite;
 	public Hitbox hitbox;
-	public Stage stage;
+	public TimeLapseStage stage;
 	public boolean willBeRemoved;
 
 	/*
@@ -39,7 +36,7 @@ public abstract class Entity implements Comparable<Entity> {
 	}
 	*/
 	
-	public Entity(Stage stage, int x, int y) {
+	public Entity(TimeLapseStage stage, int x, int y) {
 		this.x = x;
 		this.y = y;
 		this.prevX = x;
@@ -49,14 +46,16 @@ public abstract class Entity implements Comparable<Entity> {
 		willBeRemoved = false;
 	}
 	
-	//Animation (called every frame)
-	public void update() {
+	
+	public void onStep() {
 		if(sprite != null) sprite.update();
 		prevX = x;
 		prevY = y;
 	}
-	//Movement (specifically called after player moves)
-	public abstract boolean doInput();
+	
+	public abstract void beginStep();
+	
+	public abstract void endStep();
 	
 	public void render() {
 		sprite.render(x, y);

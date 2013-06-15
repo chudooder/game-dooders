@@ -30,38 +30,42 @@ public class Hitbox {
 		return parent.y + offsetY;
 	}
 	
-	public static boolean collisionExists(Entity e, Entity f) {
+	public static boolean collisionExists(Entity e, Entity f, int x, int y) {
 		Hitbox a = e.hitbox;
 		Hitbox b = f.hitbox;
 		if(a instanceof RectangleHitbox) {
 			RectangleHitbox r1 = (RectangleHitbox)a;
 			if(b instanceof RectangleHitbox) {
 				RectangleHitbox r2 = (RectangleHitbox)b;
-				return checkCollision(r1, r2);
+				return checkCollision(r1, r2, x, y);
 			} else if(b instanceof LineHitbox) {
 				LineHitbox l2 = (LineHitbox)b;
-				return checkCollision(r1, l2);
+				return checkCollision(r1, l2, x, y);
 			}
 		} else if(a instanceof LineHitbox) {
 			LineHitbox l1 = (LineHitbox)a;
 			if(b instanceof RectangleHitbox) {
 				RectangleHitbox r2 = (RectangleHitbox)b;
-				return checkCollision(r2, l1);
+				return checkCollision(r2, l1, x, y);
 			} else if(b instanceof LineHitbox) {
 				LineHitbox l2 = (LineHitbox)b;
-				return checkCollision(l1, l2);
+				return checkCollision(l1, l2, x, y);
 			}
 		}
 		
 		return false;
 	}
 	
+	public static boolean collisionExists(Entity e, Entity f) {
+		return collisionExists(e, f, 0, 0);
+	}
+	
 	
 
 	//@Override
-	private static boolean checkCollision(RectangleHitbox rect, LineHitbox line) {
-		int x = rect.getX();
-		int y = rect.getY();
+	private static boolean checkCollision(RectangleHitbox rect, LineHitbox line, int offsetX, int offsetY) {
+		int x = rect.getX() + offsetX;
+		int y = rect.getY() + offsetY;
 		int width = rect.getWidth();
 		int height = rect.getHeight();
 		
@@ -101,21 +105,21 @@ public class Hitbox {
 		
 	}
 	
-	private static boolean checkCollision(RectangleHitbox a, RectangleHitbox b) {
-		if(a.getX() > b.getX() + b.getWidth()) return false;
-		if(a.getX() + a.getWidth() < b.getX()) return false;
-		if(a.getY() > b.getY() + b.getHeight()) return false;
-		if(a.getY() + a.getHeight() < b.getY()) return false;
+	private static boolean checkCollision(RectangleHitbox a, RectangleHitbox b, int offsetX, int offsetY) {
+		if(a.getX()+offsetX >= b.getX() + b.getWidth()) return false;
+		if(a.getX()+offsetX + a.getWidth() <= b.getX()) return false;
+		if(a.getY()+offsetY >= b.getY() + b.getHeight()) return false;
+		if(a.getY()+offsetY + a.getHeight() <= b.getY()) return false;
 		
 		return true;
 	}
 	
-	private static boolean checkCollision(LineHitbox a, LineHitbox b) {
+	private static boolean checkCollision(LineHitbox a, LineHitbox b, int offsetX, int offsetY) {
 		int first, second;
-		int aX = a.getX();
-		int aY = a.getY();
-		int bX = a.getEndX();
-		int bY = a.getEndY();
+		int aX = a.getX() + offsetX;
+		int aY = a.getY() + offsetY;
+		int bX = a.getEndX() + offsetX;
+		int bY = a.getEndY() + offsetX;
 		int cX = b.getX();
 		int cY = b.getY();
 		int dX = b.getEndX();

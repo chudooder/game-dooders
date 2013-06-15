@@ -1,23 +1,44 @@
 package net;
 
-import org.newdawn.slick.opengl.Texture;
+import java.io.IOException;
 
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
+
+import chu.engine.Collideable;
 import chu.engine.Entity;
+import chu.engine.RectangleHitbox;
 import chu.engine.Stage;
 
 public class Wall extends Entity {
 	
-	public Wall(Stage stage, int x, int y) {
+	private static Texture texture;
+	
+	static {
+		try {
+			texture = TextureLoader.getTexture("PNG", 
+					ResourceLoader.getResourceAsStream("res/wall.png"));
+		} catch (IOException e) {
+			System.err.println("Resource not found: wall.png");
+		}
+	}
+	
+	public Wall(TimeLapseStage stage, int x, int y) {
 		super(stage, x, y);
-		// TODO Auto-generated constructor stub
+		sprite.addAnimation("LOOP", texture);
+		hitbox = new RectangleHitbox(this, 0, 0, 32, 32);
+		renderPriority = Entity.RENDER_PRIORITY_TERRAIN;
 	}
 
-	private static Texture texture;
+	@Override
+	public void beginStep() {
+		
+	}
 
 	@Override
-	public boolean doInput() {
-		// TODO Auto-generated method stub
-		return false;
+	public void endStep() {
+		
 	}
 	
 	
