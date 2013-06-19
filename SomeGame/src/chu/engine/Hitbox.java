@@ -30,7 +30,7 @@ public class Hitbox {
 		return parent.y + offsetY;
 	}
 	
-	public static boolean collisionExists(Entity e, Entity f, int x, int y) {
+	public static int collisionExists(Entity e, Entity f, int x, int y) {
 		Hitbox a = e.hitbox;
 		Hitbox b = f.hitbox;
 		if(a instanceof RectangleHitbox) {
@@ -53,68 +53,142 @@ public class Hitbox {
 			}
 		}
 		
-		return false;
+		return -1;
 	}
 	
-	public static boolean collisionExists(Entity e, Entity f) {
+	public static int collisionExists(Entity e, Entity f) {
 		return collisionExists(e, f, 0, 0);
 	}
 	
 	
 
 	//@Override
-	private static boolean checkCollision(RectangleHitbox rect, LineHitbox line, int offsetX, int offsetY) {
-		int x = rect.getX() + offsetX;
-		int y = rect.getY() + offsetY;
-		int width = rect.getWidth();
-		int height = rect.getHeight();
+	public static int checkCollision(RectangleHitbox rect, LineHitbox line, int offsetX, int offsetY) {
+		//Liang-Barsky algorithm incoming.
 		
-		int[][] corners = {
-			{x, y},
-			{x+width, y},
-			{x+width, y+height},
-			{x, y+height}
-		};
+		int x0 = line.getX();
+		int y0 = line.getY();
+		int x1 = line.getEndX();
+		int y1 = line.getEndY();
+		int xmin = rect.getX();
+		int ymin = rect.getY();
+		int xmax = rect.getX() + rect.getWidth();
+		int ymax = rect.getY() + rect.getHeight();
+		int dx = x1 - x0;
+		int dy = y1 - y0;
 		
-		int x1 = line.getX();
-		int x2 = line.getEndX();
-		int y1 = line.getY();
-		int y2 = line.getEndY();
+		double u0 = 0;		//For a line defined as x = x0 + u*dx, and y = y0 + u*dy
+		double u1 = 1;		//basically how far along the line the intersection is
 		
-		int prev = 0;
-		boolean done = true;
-		for(int i=0; i<4; i++) {
-			//It's math magic.
-			int func = (y2-y1)*corners[i][0] + (x1-x2)*corners[i][1] + (x2*y1-x1*y2);
-			if(func * prev < 0 || func == 0) {
-				done = false;
+		for(int k=0; k<4; k++) {
+			int p,q;
+			if(k == 0) {		//Left
+				p = -dx;
+				q = x0 - xmin;
+			} else if(k == 1) {	//Right
+				p = dx;
+				q = xmax - x0;
+			} else if(k == 2) {	//Up
+				p = -dy;
+				q = y0 - ymin;
+			} else {			//Down
+				p = dy;
+				q = ymax = y0;
 			}
-			prev = func;
+			
+			//Check for parallel lines (p == 0)
+			if(p == 0) {
+				//If q < 0, then the line is completely outside: eliminate
+				if(q < 0) return -1;
+			}
+			
+			double r = q/p;
+			
+			//If p < 0, then the line goes from outside to inside.
+			if(p < 0) {
+				//Line is too short to reach the edge. Stop here.
+				if(r > u1) return -1;
+				//If r > u0, clip the line to this edge.
+				if(r > u0) u0 = r;
+			}
+			
+			//If p > 0, then the line goes from inside to outside.
+			if(p > 0) {
+				//Line is too short to reach the edge. Stop here.
+				if(r < u0) return -1;
+				//If r < u1, clip the line to this edge.
+				if(r < u1) u1 = r;
+			}
 		}
 		
-		if(done == true) {
-			return false;
+		return 1;
+	}
+	
+	public static double getIntersection(RectangleHitbox rect, LineHitbox line, int offsetX, int offsetY) {
+		//Liang-Barsky algorithm incoming.
+		int x0 = line.getX();
+		int y0 = line.getY();
+		int x1 = line.getEndX();
+		int y1 = line.getEndY();
+		int xmin = rect.getX() + offsetX;
+		int ymin = rect.getY() + offsetY;
+		int xmax = xmin + rect.getWidth();
+		int ymax = ymin + rect.getHeight();
+		int dx = x1 - x0;
+		int dy = y1 - y0;
+		
+		double u0 = 0;		//For a line defined as x = x0 + u*dx, and y = y0 + u*dy
+		double u1 = 1;		//basically how far along the line the intersection is
+		
+		for(int k=0; k<4; k++) {
+			double p,q;
+			if(k == 0) {		//Left
+				p = -dx;
+				q = x0 - xmin;
+			} else if(k == 1) {	//Right
+				p = dx;
+				q = xmax - x0;
+			} else if(k == 2) {	//Up
+				p = -dy;
+				q = y0 - ymin;
+			} else {			//Down
+				p = dy;
+				q = ymax - y0;
+			}
+			
+			//Check for parallel lines (p == 0)
+			if(p == 0) {
+				//If q < 0, then the line is completely outside: eliminate
+				if(q < 0) return -1;
+			} else {
+				double r = q/p;
+				//If p < 0, then the line goes from outside to inside.
+				if(p < 0) {
+					if(r > u1) return -1;
+					if(r > u0) u0 = r;
+				}
+				
+				//If p > 0, then the line goes from inside to outside.
+				if(p > 0) {
+					if(r < u0) return -1;
+					if(r < u1) u1 = r;
+				}
+			}
 		}
 		
-		//There MIGHT be an intersection at this point. Keep checking.
-		if(x1 > x+width && x2 > x+width) return false;
-		if(x1 < x && x2 < x) return false;
-		if(y1 < y && y2 < y) return false;
-		if(y1 > y+height && y2 > y+height) return false;
-		return true;
-		
+		return u0;
 	}
 	
-	private static boolean checkCollision(RectangleHitbox a, RectangleHitbox b, int offsetX, int offsetY) {
-		if(a.getX()+offsetX >= b.getX() + b.getWidth()) return false;
-		if(a.getX()+offsetX + a.getWidth() <= b.getX()) return false;
-		if(a.getY()+offsetY >= b.getY() + b.getHeight()) return false;
-		if(a.getY()+offsetY + a.getHeight() <= b.getY()) return false;
+	private static int checkCollision(RectangleHitbox a, RectangleHitbox b, int offsetX, int offsetY) {
+		if(a.getX()+offsetX >= b.getX() + b.getWidth()) return -1;
+		if(a.getX()+offsetX + a.getWidth() <= b.getX()) return -1;
+		if(a.getY()+offsetY >= b.getY() + b.getHeight()) return -1;
+		if(a.getY()+offsetY + a.getHeight() <= b.getY()) return -1;
 		
-		return true;
+		return 1;
 	}
 	
-	private static boolean checkCollision(LineHitbox a, LineHitbox b, int offsetX, int offsetY) {
+	private static int checkCollision(LineHitbox a, LineHitbox b, int offsetX, int offsetY) {
 		int first, second;
 		int aX = a.getX() + offsetX;
 		int aY = a.getY() + offsetY;
@@ -128,9 +202,9 @@ public class Hitbox {
 		first = aX*(bY-cY) + bX*(cY-aY) + cX*(aY-bY);
 		second = aX*(bY-dY) + bX*(dY-aY) + dX*(aY-bY);
 		
-		if(first < 0 && second < 0) return false;
-		if(first > 0 && second > 0) return false;
-		return true;
+		if(first < 0 && second < 0) return -1;
+		if(first > 0 && second > 0) return -1;
+		return 1;
 		
 	}
 

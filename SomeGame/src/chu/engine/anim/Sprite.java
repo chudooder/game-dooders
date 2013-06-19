@@ -76,12 +76,27 @@ public class Sprite {
 		
 		Texture texture = currentAnimation.getTexture();
 		
-		Renderer.renderRotated(texture, x0, 0, x1, 1, x, y, x+width, y+height, angle);
+		Transform t = new Transform();
+		t.setRotation(angle);
+		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, t);
 	}
 
 	public void update() {
 		if(currentAnimation == null) return;
 		currentAnimation.update();
+	}
+
+	public void renderTransformed(int x, int y, Transform t) {
+		if(currentAnimation == null) return;
+		
+		int width = currentAnimation.getWidth();
+		int height = currentAnimation.getHeight();
+		int fakelength = currentAnimation.getImageWidth()/width;
+		float x0 = (float)(currentAnimation.getFrame())/(float)(fakelength);
+		float x1 = (float)(currentAnimation.getFrame()+1)/(float)(fakelength);
+		
+		Texture texture = currentAnimation.getTexture();
+		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, t);
 	}
 	
 }

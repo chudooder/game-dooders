@@ -20,14 +20,7 @@ public class Stage {
 	
 	public TreeSet<Entity> getAllEntities() {
 		TreeSet<Entity> ans = new TreeSet<>();
-		for(Entity e : entities) {
-			ans.add(e);
-		}
-		
-		for(Entity e : addStack) {
-			ans.add(e);
-		}
-		return ans;
+		return entities;
 	}
 	
 	public void addEntity(Entity e) {

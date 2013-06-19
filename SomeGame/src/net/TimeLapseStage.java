@@ -37,10 +37,6 @@ public class TimeLapseStage extends Stage {
 		processRemoveStack();
 	}
 	
-	public void render() {
-		super.render();
-	}
-	
 	private void resolveCollisions() {
 		Entity[] ent = new Entity[entities.size()];
 		entities.toArray(ent);
@@ -48,7 +44,7 @@ public class TimeLapseStage extends Stage {
 		for(int a = 0; a < ent.length; a++) {
 			for(int b = a+1; b < ent.length; b++) {
 				if(ent[a] instanceof Collideable) {
-					if(Hitbox.collisionExists(ent[a], ent[b])) {
+					if(Hitbox.collisionExists(ent[a], ent[b]) == 1) {
 						((Collideable)ent[a]).doCollisionWith(ent[b]);
 					}
 				}
@@ -59,7 +55,7 @@ public class TimeLapseStage extends Stage {
 	public boolean checkCollision(Entity e, Class<Wall> c, int x, int y) {
 		boolean b = false;
 		for(Entity other : entities) {
-			if(other.getClass().equals(c) && Hitbox.collisionExists(e, other, x, y)) {
+			if(other.getClass().equals(c) && Hitbox.collisionExists(e, other, x, y) == 1) {
 				b = true;
 			}
 		}

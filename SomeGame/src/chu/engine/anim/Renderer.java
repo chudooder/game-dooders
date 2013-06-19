@@ -43,15 +43,18 @@ public class Renderer {
 	    glEnd();
 	}
 	
-	public static void renderRotated(Texture t, float tx0, float ty0, float tx1, float ty1, 
-			float x0, float y0, float x1, float y1, float angle) {
+	public static void renderTransformed(Texture t, float tx0, float ty0, float tx1, float ty1, 
+			float x0, float y0, float x1, float y1, Transform transform) {
 		Color.white.bind();
 		t.bind();
 		
 		glPushMatrix();
+		glTranslatef(x0, y0, 0);
+		glScalef(transform.scaleX, transform.scaleY, 0);
+		glTranslatef(-x0, -y0, 0);
 		glTranslatef((x0+x1)/2, (y0+y1)/2, 0);
-		glRotatef(angle, 0, 0, 1);
-		glTranslatef(-(x0+x1)/2, -(y0+y1)/2, 0);
+		glRotatef(transform.rotation, 0, 0, 1);
+		glTranslatef(-(x0+x1)/2,-(y0+y1)/2, 0);
 		
 		
 	    // draw quad
@@ -72,6 +75,7 @@ public class Renderer {
 	
 	public static void drawSquare(float x, float y, float s, Color c) {
 		c.bind();
+		glDisable(GL_TEXTURE_2D);
 		glColor4f(c.r, c.g, c.b, c.a);
 		
 		//glLoadIdentity();
@@ -81,13 +85,12 @@ public class Renderer {
 			glVertex2f(x+s, y+s);
 			glVertex2f(x, y+s);
 		glEnd();
-		
+		glEnable(GL_TEXTURE_2D);
 	}
 	
-	public static void drawLine(int x0, int y0, int x, int y, float width, Color c) {
+	public static void drawLine(float x0, float y0, float x, float y, float width, Color c) {
 		c.bind();
 		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_LINE_SMOOTH);
 		glLineWidth(width);
 		glColor4f(c.r, c.g, c.b, c.a);
 		
@@ -95,6 +98,19 @@ public class Renderer {
 		glBegin(GL_LINES);
 			glVertex2f(x0,y0);
 			glVertex2f(x,y);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+		
+	}
+	
+	public static void drawTriangle(float x0, float y0, float x, float y, float x2, float y2, Color c) {
+		c.bind();
+		glDisable(GL_TEXTURE_2D);
+		glColor4f(c.r, c.g, c.b, c.a);
+		glBegin(GL_TRIANGLES);
+			glVertex2f(x0,y0);
+			glVertex2f(x,y);
+			glVertex2f(x2,y2);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
 		

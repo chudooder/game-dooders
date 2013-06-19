@@ -19,7 +19,7 @@ public class ClickyTester extends Entity {
 			if(Mouse.isButtonDown(0) && !leftClicked) {
 				leftClicked = true;
 				stage.addEntity(new Wall(stage, TimeLapse.getMouseX(), 
-						TimeLapse.getMouseY()));
+						TimeLapse.getMouseY(), 64, 64));
 			} else if(!Mouse.isButtonDown(0) && leftClicked) {
 				leftClicked = false;
 			}
