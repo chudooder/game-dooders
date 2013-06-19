@@ -173,7 +173,7 @@ public class Merc extends Entity implements Collideable {
 		
 		float pointX = centerX + (float)(best*Math.cos(rads));
 		float pointY = centerY + (float)(best*Math.sin(rads));
-		Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.white);
+		Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 		return best;
 	}
 	
@@ -209,9 +209,15 @@ public class Merc extends Entity implements Collideable {
 						Vertex v = new Vertex(
 								(float)(centerX + dist*Math.cos(rads)), 
 								(float)(centerY + dist*Math.sin(rads)));
-						Vertex vv = new Vertex(i, j);
-						//vertices.add(v);
-						vertices.add(vv);
+						vertices.add(v);
+						Renderer.drawSquare(v.x-2, v.y-2, 4, Color.red);
+						
+						Vertex vv = new Vertex(i,j);
+						double realDist = Math.sqrt(Math.pow(vv.x - centerX, 2)+Math.pow(vv.y - centerY, 2));
+						if(realDist < dist) {
+							vertices.add(vv);
+							Renderer.drawSquare(vv.x-2, vv.y-2, 4, Color.blue);
+						}
 						
 					} else {
 						double dist = raytrace(walls, null, r);
@@ -219,6 +225,7 @@ public class Merc extends Entity implements Collideable {
 								(float)(centerX + dist*Math.cos(rads)), 
 								(float)(centerY + dist*Math.sin(rads)));
 						vertices.add(v);
+						Renderer.drawSquare(v.x-2, v.y-2, 4, Color.green);
 					}
 				}
 			}
@@ -257,7 +264,7 @@ public class Merc extends Entity implements Collideable {
 			Renderer.drawTriangle(centerX, centerY, vertices.get(i).x, vertices.get(i).y, 
 					vertices.get(i+1).x, vertices.get(i+1).y, new Color(255, 255, 255, 50));
 			
-			Renderer.drawSquare(vertices.get(i).x-2, vertices.get(i).y-2, 4, Color.red);
+
 			
 //			Renderer.drawLine(vertices.get(i).x, vertices.get(i).y,
 //					vertices.get(i+1).x, vertices.get(i+1).y, 1, Color.white);
