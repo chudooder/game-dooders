@@ -180,7 +180,7 @@ public class Merc extends Entity implements Collideable {
 	private void renderLightMap() {
 		ArrayList<Vertex> vertices = new ArrayList<>();
 		ArrayList<Wall> walls = new ArrayList<>();
-		ArrayList<Double> angles = new ArrayList<>();
+		ArrayList<Angle> angles = new ArrayList<>();
 		
 		for(Entity e : stage.getAllEntities()) {
 			if(e instanceof Wall) {
@@ -194,75 +194,75 @@ public class Merc extends Entity implements Collideable {
 			for(int i = wall.x; i <= wall.getEndX(); i+=wall.getWidth()) {
 				for(int j = wall.y; j <= wall.getEndY(); j+=wall.getHeight()) {
 					double r = Math.toDegrees(Math.atan2(j - y - 16, i - x - 16));
-					angles.add(r);
-					
 					boolean ignore = false;
 					if(i==wall.x && j==wall.y || i==wall.getEndX() && j==wall.getEndY()) {
 						if(centerX<i && centerY>j || centerX>i && centerY<j) ignore = true;
 					} else {
 						if(centerX>i && centerY>j || centerX<i && centerY<j) ignore = true;
 					}
-					
-					double rads = r/180.0*Math.PI;
-					if(ignore) {
-						double dist = raytrace(walls, wall, r);
-						Vertex v = new Vertex(
-								(float)(centerX + dist*Math.cos(rads)), 
-								(float)(centerY + dist*Math.sin(rads)));
-						vertices.add(v);
-						Renderer.drawSquare(v.x-2, v.y-2, 4, Color.red);
-						
-						Vertex vv = new Vertex(i,j);
-						double realDist = Math.sqrt(Math.pow(vv.x - centerX, 2)+Math.pow(vv.y - centerY, 2));
-						if(realDist < dist) {
-							vertices.add(vv);
-							Renderer.drawSquare(vv.x-2, vv.y-2, 4, Color.blue);
-						}
-						
-					} else {
-						double dist = raytrace(walls, null, r);
-						Vertex v = new Vertex(
-								(float)(centerX + dist*Math.cos(rads)), 
-								(float)(centerY + dist*Math.sin(rads)));
-						vertices.add(v);
-						Renderer.drawSquare(v.x-2, v.y-2, 4, Color.green);
-					}
+					angles.add(new Angle(r, wall, ignore, i, j));
 				}
 			}
 		}
+		Collections.sort(angles);
 		
-		Comparator<Vertex> comparator = new Comparator<Vertex>() {
-			@Override
-			public int compare(Vertex arg0, Vertex arg1) {
-				
-				//Radial ordering first
-				float r0 = (float) Math.toDegrees(Math.atan2(arg0.y - centerY, arg0.x - centerX));
-				float r1 = (float) Math.toDegrees(Math.atan2(arg1.y - centerY, arg1.x - centerX));
-				
-
-				
-				if(r0 - r1 > 0) return 1;
-				if(r0 - r1 < 0) return -1;
-				
-				
-				//Then distance
-				double d0 = Math.sqrt(Math.pow(arg0.x - centerX, 2) + Math.pow(arg0.y - centerY, 2));
-				double d1 = Math.sqrt(Math.pow(arg1.x - centerX, 2) + Math.pow(arg1.y - centerY, 2));
-				if(d0 > d1) return 1;
-				if(d0 < d1) return -1;
-				return 0;
-			}
+		for(Angle a : angles) {
+			double r = a.angle;
+			boolean ignore = a.ignore;
+			Wall wall = a.parent;
+			int i = a.i;
+			int j = a.j;
 			
-		};
+			double rads = r/180.0*Math.PI;
+			if(ignore) {
+				double dist = raytrace(walls, wall, r);
+				Vertex v = new Vertex(
+						(int)(centerX + dist*Math.cos(rads)), 
+						(int)(centerY + dist*Math.sin(rads)));
+
+				//Compare it to the previous vertex
+				boolean sameWall = false;
+				if(vertices.size() > 0) {
+					Vertex prev = vertices.get(vertices.size()-1);
+					if(prev.x == v.x || prev.y == v.y) {
+						sameWall = true;
+					}
+				}
+				
+				vertices.add(v);
+				Renderer.drawSquare(v.x-2, v.y-2, 4, Color.red);
+				
+				Vertex vv = new Vertex(i,j);
+				double realDist = Math.sqrt(Math.pow(vv.x - centerX, 2)+Math.pow(vv.y - centerY, 2));
+				if(realDist < dist) {
+					if(sameWall) {
+						vertices.add(vv);
+					} else {
+						vertices.add(vertices.size()-1, vv);
+					}
+					Renderer.drawSquare(vv.x-2, vv.y-2, 4, Color.blue);
+				}
+				
+			} else {
+				double dist = raytrace(walls, null, r);
+				Vertex v = new Vertex(
+						(int)(centerX + dist*Math.cos(rads)), 
+						(int)(centerY + dist*Math.sin(rads)));
+				vertices.add(v);
+				Renderer.drawSquare(v.x-2, v.y-2, 4, Color.green);
+			}
+		}
 		
-		Collections.sort(vertices, comparator);
-		
-		if(vertices.size() > 0) vertices.add(vertices.get(0));
+		if(vertices.size() > 0) {
+			Renderer.drawLine(vertices.get(0).x, vertices.get(0).y,
+					centerX, centerY, 1, Color.white);
+			vertices.add(vertices.get(0));
+		}
 
 		for(int i=0; i<vertices.size()-1; i++) {
 			
-			Renderer.drawTriangle(centerX, centerY, vertices.get(i).x, vertices.get(i).y, 
-					vertices.get(i+1).x, vertices.get(i+1).y, new Color(255, 255, 255, 50));
+//			Renderer.drawTriangle(centerX, centerY, vertices.get(i).x, vertices.get(i).y, 
+//					vertices.get(i+1).x, vertices.get(i+1).y, new Color(255, 255, 255, 50));
 			
 
 			
@@ -272,11 +272,30 @@ public class Merc extends Entity implements Collideable {
 	}
 	
 	class Vertex {
-		float x;
-		float y;
-		public Vertex(float d, float e) {
+		int x;
+		int y;
+		public Vertex(int d, int e) {
 			this.x = d;
 			this.y = e;
+		}
+	}
+	
+	class Angle implements Comparable<Angle> {
+		double angle;
+		Wall parent;
+		boolean ignore;
+		int i;
+		int j;
+		public Angle(double a, Wall w, boolean b, int i, int j) {
+			angle = a;
+			parent = w;
+			ignore = b;
+			this.i = i;
+			this.j = j;
+		}
+		@Override
+		public int compareTo(Angle arg0) {
+			return (int)(angle - arg0.angle);
 		}
 	}
 
