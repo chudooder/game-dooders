@@ -24,17 +24,23 @@ public class TimeLapse extends Game {
 		System.out.println("F3: Play back recording");
 		System.out.println("F4: Clear recording");
 		TimeLapse game = new TimeLapse();
-		game.init(640,480);
+		game.init(1280,720);
 		game.loop();
 	}
 	
 	public void init(int width, int height) {
 		super.init(width, height);
+		
 		currentStage = new TimeLapseStage();
 		Merc player = new Merc(currentStage, 320, 240);
 		currentStage.addEntity(player);
 		Renderer.setCamera(new Camera(player, 16, 16));
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
+		
+		currentStage.addEntity(new Wall(currentStage, 0, 0, 512, 32));
+		currentStage.addEntity(new Wall(currentStage, 0, 32, 32, 480));
+		currentStage.addEntity(new Wall(currentStage, 0, 512, 512, 32));
+		currentStage.addEntity(new Wall(currentStage, 512, 0, 32, 544));
 		
 		//Some testing code for the hitboxes. Delete later
 		Merc a = new Merc(currentStage, 0,0);
