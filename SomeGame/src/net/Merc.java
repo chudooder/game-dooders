@@ -129,5 +129,9 @@ public class Merc extends Entity implements Collideable {
 			}
 		}
 	}
+	
+	public float getAngle() {
+		return angle;
+	}
 
 }
