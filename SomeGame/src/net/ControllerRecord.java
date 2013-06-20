@@ -16,5 +16,9 @@ public class ControllerRecord implements Controller {
 	public Controller getRecord() {
 		return new ControllerRecord(record);
 	}
+	@Override
+	public void set(Merc m) {
+				
+	}
 
 }

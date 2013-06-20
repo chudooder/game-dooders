@@ -16,6 +16,7 @@ public class PlayerController implements Controller {
 		controls.put(Input.UP, Keyboard.KEY_W);
 		controls.put(Input.DOWN, Keyboard.KEY_S);
 		controls.put(Input.LEFT, Keyboard.KEY_A);
+		controls.put(Input.RIGHT, Keyboard.KEY_D);
 	}
 	
 	public PlayerController(Map<Input, Integer> controls) {
@@ -27,7 +28,7 @@ public class PlayerController implements Controller {
 	public Map<Input, Object> getInput(long frame) {
 		HashMap<Input, Object> input = new HashMap<>();
 		for (Input i : Input.values()) {
-			if(controls.containsKey(controls.get(i))){
+			if(controls.containsKey(i)){
 				input.put(i, Keyboard.isKeyDown(controls.get(i)));
 			} else {
 				input.put(i, false);
@@ -42,6 +43,7 @@ public class PlayerController implements Controller {
 			input.put(Input.MOUSE, null);
 		}
 		record.put(frame, input);
+		System.out.println(input);
 		return input;
 	}
 
@@ -50,7 +52,7 @@ public class PlayerController implements Controller {
 		return new ControllerRecord(record);
 	}
 	
-	public void setRelative(Entity e){
+	public void set(Merc e){
 		relative = e;
 	}
 }
