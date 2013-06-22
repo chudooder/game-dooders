@@ -100,6 +100,8 @@ public class Hitbox {
 			if(p == 0) {
 				//If q < 0, then the line is completely outside: eliminate
 				if(q < 0) return -1;
+				//otherwise, it's inside
+				return 1;
 			}
 			
 			double r = q/p;

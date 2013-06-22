@@ -21,21 +21,38 @@ public class TimeLapseStage extends Stage {
 		super();
 	}
 	
-	public void update() {
+	public void beginStep() {
 		for(Entity e : entities) {
 			e.beginStep();
-			e.onStep();
 		}
-		
-		resolveCollisions();
-		
-		for(Entity e : entities) {
-			e.endStep();
-		}
-
 		processAddStack();
 		processRemoveStack();
 	}
+	
+	public void onStep() {
+		for(Entity e : entities) {
+			e.onStep();
+		}
+		resolveCollisions();
+		processAddStack();
+		processRemoveStack();
+	}
+	
+	public void render() {
+		for(Entity e : entities) {
+			e.render();
+		}
+	}
+	
+
+	public void endStep() {
+		for(Entity e : entities) {
+			e.endStep();
+		}
+		processAddStack();
+		processRemoveStack();
+	}
+
 	
 	private void resolveCollisions() {
 		Entity[] ent = new Entity[entities.size()];
@@ -61,5 +78,7 @@ public class TimeLapseStage extends Stage {
 		}
 		return b;
 	}
+	
+
 
 }

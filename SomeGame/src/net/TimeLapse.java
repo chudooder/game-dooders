@@ -64,12 +64,14 @@ public class TimeLapse extends Game {
 				getInput();
 				processInput();
 				
-				if(!paused) {
-					currentStage.update();
-				}
 				glPushMatrix();
-				Renderer.getCamera().lookThrough();
-				currentStage.render();
+				if(!paused) {
+					currentStage.beginStep();
+					currentStage.onStep();
+					Renderer.getCamera().lookThrough();
+					currentStage.render();
+					currentStage.endStep();
+				}
 				glPopMatrix();
 				Display.update();
 			}

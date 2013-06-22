@@ -53,7 +53,7 @@ public class Renderer {
 		glScalef(transform.scaleX, transform.scaleY, 0);
 		glTranslatef(-x0, -y0, 0);
 		glTranslatef((x0+x1)/2, (y0+y1)/2, 0);
-		glRotatef(transform.rotation, 0, 0, 1);
+		glRotatef(transform.rotation/(float)Math.PI*180, 0, 0, 1);
 		glTranslatef(-(x0+x1)/2,-(y0+y1)/2, 0);
 		
 		

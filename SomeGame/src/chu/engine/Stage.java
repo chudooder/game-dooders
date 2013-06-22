@@ -94,7 +94,7 @@ public class Stage {
 	public void processAddStack() {
 		while(!addStack.isEmpty()) {
 			Entity e = addStack.pop();
-			System.out.println(entities.add(e) +" "+ e.getClass().getCanonicalName());
+			entities.add(e);
 			renderQueue.add(e);
 		}
 	}

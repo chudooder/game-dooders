@@ -18,16 +18,21 @@ public class Bullet extends Entity {
 	
 	private int dx;
 	private int dy;
+	private int timer;
 	
 	public Bullet(TimeLapseStage stage, int x, int y, int dx, int dy) {
 		super(stage, x, y);
 		hitbox = new LineHitbox(this, 0, 0, dx, dy);
+		this.dx = dx;
+		this.dy = dy;
+		timer = 30;
 		//who needs a sprite?
 	}
 	
 	@Override
 	public void endStep() {
-		destroy();
+		timer--;
+		if(timer == 0) destroy();
 	}
 	
 	@Override
@@ -37,7 +42,6 @@ public class Bullet extends Entity {
 
 	@Override
 	public void beginStep() {
-		// TODO Auto-generated method stub
 		
 	}
 }

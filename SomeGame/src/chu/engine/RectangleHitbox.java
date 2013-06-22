@@ -26,5 +26,13 @@ public class RectangleHitbox extends Hitbox {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+
+	public int getEndY() {
+		return getY() + height;
+	}
+	
+	public int getEndX() {
+		return getX() + width;
+	}
 	
 }
