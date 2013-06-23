@@ -25,7 +25,7 @@ public class Bullet extends Entity {
 		hitbox = new LineHitbox(this, 0, 0, dx, dy);
 		this.dx = dx;
 		this.dy = dy;
-		timer = 30;
+		timer = 5;
 		//who needs a sprite?
 	}
 	
