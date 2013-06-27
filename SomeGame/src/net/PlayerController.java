@@ -3,6 +3,7 @@ package net;
 import java.util.*;
 
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import chu.engine.Entity;
 
@@ -10,6 +11,7 @@ public class PlayerController implements Controller {
 	private Map<Input, Integer> controls;
 	private Entity relative; // getMousePos() returns position relative to this
 	private Map<Long, Map<Input, Object>> record;
+	private long seed;
 
 	public PlayerController(){
 		this(new HashMap<Input,Integer>());
@@ -42,17 +44,33 @@ public class PlayerController implements Controller {
 		} else {
 			input.put(Input.MOUSE, null);
 		}
+		
+		if(Mouse.isButtonDown(0)) {
+			input.put(Input.FIRE, true);
+		} else {
+			input.put(Input.FIRE, false);
+		}
 		record.put(frame, input);
-		System.out.println(input);
+		//System.out.println(input);
 		return input;
 	}
 
 	@Override
 	public Controller getRecord() {
-		return new ControllerRecord(record);
+		return new ControllerRecord(record, seed);
 	}
 	
 	public void set(Merc e){
 		relative = e;
+	}
+
+	@Override
+	public long getSeed() {
+		return seed;
+	}
+
+	@Override
+	public void setSeed(long s) {
+		seed = s;
 	}
 }

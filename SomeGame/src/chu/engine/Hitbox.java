@@ -65,15 +65,14 @@ public class Hitbox {
 	//@Override
 	public static int checkCollision(RectangleHitbox rect, LineHitbox line, int offsetX, int offsetY) {
 		//Liang-Barsky algorithm incoming.
-		
 		int x0 = line.getX();
 		int y0 = line.getY();
 		int x1 = line.getEndX();
 		int y1 = line.getEndY();
-		int xmin = rect.getX();
-		int ymin = rect.getY();
-		int xmax = rect.getX() + rect.getWidth();
-		int ymax = rect.getY() + rect.getHeight();
+		int xmin = rect.getX() + offsetX;
+		int ymin = rect.getY() + offsetY;
+		int xmax = xmin + rect.getWidth();
+		int ymax = ymin + rect.getHeight();
 		int dx = x1 - x0;
 		int dy = y1 - y0;
 		
@@ -81,7 +80,7 @@ public class Hitbox {
 		double u1 = 1;		//basically how far along the line the intersection is
 		
 		for(int k=0; k<4; k++) {
-			int p,q;
+			double p,q;
 			if(k == 0) {		//Left
 				p = -dx;
 				q = x0 - xmin;
@@ -93,33 +92,26 @@ public class Hitbox {
 				q = y0 - ymin;
 			} else {			//Down
 				p = dy;
-				q = ymax = y0;
+				q = ymax - y0;
 			}
 			
 			//Check for parallel lines (p == 0)
 			if(p == 0) {
 				//If q < 0, then the line is completely outside: eliminate
 				if(q < 0) return -1;
-				//otherwise, it's inside
-				return 1;
-			}
-			
-			double r = q/p;
-			
-			//If p < 0, then the line goes from outside to inside.
-			if(p < 0) {
-				//Line is too short to reach the edge. Stop here.
-				if(r > u1) return -1;
-				//If r > u0, clip the line to this edge.
-				if(r > u0) u0 = r;
-			}
-			
-			//If p > 0, then the line goes from inside to outside.
-			if(p > 0) {
-				//Line is too short to reach the edge. Stop here.
-				if(r < u0) return -1;
-				//If r < u1, clip the line to this edge.
-				if(r < u1) u1 = r;
+			} else {
+				double r = q/p;
+				//If p < 0, then the line goes from outside to inside.
+				if(p < 0) {
+					if(r > u1) return -1;
+					if(r > u0) u0 = r;
+				}
+				
+				//If p > 0, then the line goes from inside to outside.
+				if(p > 0) {
+					if(r < u0) return -1;
+					if(r < u1) u1 = r;
+				}
 			}
 		}
 		

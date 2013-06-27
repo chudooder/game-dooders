@@ -24,7 +24,7 @@ public class TimeLapse extends Game {
 		System.out.println("F3: Play back recording");
 		System.out.println("F4: Clear recording");
 		TimeLapse game = new TimeLapse();
-		game.init(1280,720);
+		game.init(640,480);
 		game.loop();
 	}
 	

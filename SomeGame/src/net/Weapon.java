@@ -1,14 +1,12 @@
 package net;
 
-public abstract class Weapon {
+public interface Weapon {
 
-	protected Merc owner;
-	
-	public abstract void fire();
-	public abstract void altfire();
-	
-	public Merc getOwner() {
-		return owner;
-	}
+	public void fire();
+	public void altfire();
+	public void update();
+	public void getLoadedAmmo();
+	public void getReserveAmmo();
+	public Merc getOwner();
 	
 }

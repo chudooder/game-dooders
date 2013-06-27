@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeSet;
 
 import org.lwjgl.input.Keyboard;
@@ -35,12 +36,15 @@ public class Merc extends Entity implements Collideable {
 	public static Texture texture;
 	private float angle;		//IN RADIANS.
 	private MercRecord record;
+	private Random random;
 	private boolean recording;
 	private Weapon weapon;
 	private Controller controller;
 	public int centerX;
 	public int centerY;
 	private int frame;
+	private int health;
+	public Team team;
 
 	static {
 		try {
@@ -50,23 +54,39 @@ public class Merc extends Entity implements Collideable {
 			System.err.println("Resource not found: guy.png");
 		}
 	}
-
-	public Merc(TimeLapseStage s, int x, int y, Controller c) {
+	
+	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
 		super(s, x, y);
-		sprite.addAnimation("LOOP", texture);
+		sprite.addAnimation("LOOP", texture, 32, 32, 2, 1000);
 		hitbox = new RectangleHitbox(this, 4, 4, 24, 24);
 		renderPriority = Entity.RENDER_PRIORITY_PLAYER;
+		//Is there a way to get the seed?
+		random = new Random();
+		if(c.getSeed() == 0) {
+			long seed = Double.doubleToLongBits(Math.random());
+			random.setSeed(seed);
+			c.setSeed(seed);
+		} else {
+			random.setSeed(c.getSeed());
+		}
 		weapon = new Pistol(this);
 		controller = c;
 		c.set(this);
+		health = 100;
+		team = t;
 	}
-
+	
+	public Merc(TimeLapseStage s, int x, int y, Controller c) {
+		this(s, x, y, c, Team.BLUE);
+	}
+	
 	public Merc(TimeLapseStage s, int x, int y) {
 		this(s, x, y, new PlayerController());
 	}
 
 	@Override
 	public void beginStep() {
+		weapon.update();
 		
 		int mX = TimeLapse.getMouseX() - x - 16;
 		int mY = TimeLapse.getMouseY() - y - 16;
@@ -106,19 +126,19 @@ public class Merc extends Entity implements Collideable {
 		HashMap<Integer, Boolean> keys = Game.getKeys();
 		for (int key : keys.keySet()) {
 			if (key == Keyboard.KEY_F3 && keys.get(key)) {
-				stage.addEntity(new Merc(stage,320,240,controller.getRecord()));
+				stage.addEntity(new Merc(stage,320,240,controller.getRecord(),Team.RED));
+			}
+			
+			if (key == Keyboard.KEY_F4 && keys.get(key)) {
+				controller = new PlayerController();
 			}
 		}
 
 		centerX = x + 16;
 		centerY = y + 16;
 		
-		while(Mouse.next()) {
-			if(Mouse.getEventButtonState()) {
-				if(Mouse.getEventButton() == 0) {
-					weapon.fire();
-				}
-			}
+		if((Boolean) inputs.get(Input.FIRE)){
+			weapon.fire();
 		}
 		
 
@@ -158,6 +178,12 @@ public class Merc extends Entity implements Collideable {
 				y = e.y + 32;
 			}
 		}
+		
+		if(e instanceof Bullet) {
+			if(team != ((Bullet)e).team) {
+				takeDamage(5);
+			}
+		}
 	}
 
 
@@ -181,9 +207,6 @@ public class Merc extends Entity implements Collideable {
 			 * with the rayAngle the merc is facing. If it's past a certain threshold,
 			 * skip computing the intersection because it can't exist.
 			 */
-
-
-			
 			if(w.equals(ignore)) continue;
 			float check1 = (float) Math.atan2(w.getY() - centerY, w.getX() - centerX);
 			float check2 = (float) Math.atan2(w.getEndY() - centerY, w.getEndX() - centerX);
@@ -201,7 +224,7 @@ public class Merc extends Entity implements Collideable {
 		float pointX = centerX + (float) (best * Math.cos(rads));
 		float pointY = centerY + (float) (best * Math.sin(rads));
 		
-		Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
+		//Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 
 		return best;
 	}
@@ -305,6 +328,16 @@ public class Merc extends Entity implements Collideable {
 		}
 	}
 
+	public int getHealth() {
+		return health;
+	}
+
+	public void takeDamage(int damage) {
+		health -= damage;
+		System.out.println(health);
+		if(health <= 0) destroy();
+	}
+
 	class Vertex {
 		int x;
 		int y;
@@ -335,6 +368,10 @@ public class Merc extends Entity implements Collideable {
 		public int compareTo(Angle arg0) {
 			return (int) (angle - arg0.angle);
 		}
+	}
+
+	public Random getRandom() {
+		return random;
 	}
 
 }

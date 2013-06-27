@@ -59,9 +59,9 @@ public class TimeLapseStage extends Stage {
 		entities.toArray(ent);
 		
 		for(int a = 0; a < ent.length; a++) {
-			for(int b = a+1; b < ent.length; b++) {
-				if(ent[a] instanceof Collideable) {
-					if(Hitbox.collisionExists(ent[a], ent[b]) == 1) {
+			if(ent[a] instanceof Collideable) {
+				for(int b = 0; b < ent.length; b++) {
+					if(a != b && Hitbox.collisionExists(ent[a], ent[b]) == 1) {
 						((Collideable)ent[a]).doCollisionWith(ent[b]);
 					}
 				}
