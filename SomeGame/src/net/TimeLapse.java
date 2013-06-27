@@ -1,20 +1,30 @@
 package net;
 
+import java.io.IOException;
+import java.nio.IntBuffer;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
+
 import static org.lwjgl.opengl.GL11.*;
 
 import chu.engine.Game;
 import chu.engine.Hitbox;
 import chu.engine.RectangleHitbox;
-import chu.engine.Stage;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
 public class TimeLapse extends Game {
 	
 	private TimeLapseStage currentStage;
-
+	private Texture cursorTex;
+	private Cursor cursor;
+	
 
 	public static void main(String[] args) {
 		System.out.println("Controls:");
@@ -28,8 +38,43 @@ public class TimeLapse extends Game {
 		game.loop();
 	}
 	
+	private static IntBuffer formBuffer(Texture tex) {
+		byte[] pixelData = tex.getTextureData();
+		IntBuffer ib = IntBuffer.allocate(tex.getImageWidth() * tex.getImageHeight() * 4);
+		for (int x = 0; x < tex.getImageWidth(); x++)
+			for (int y = 0; y < tex.getImageHeight(); y++) {
+				int offset = x + (y * tex.getTextureWidth()) * 4;
+				ib.put(translate(pixelData[offset + 3]));	// A
+				ib.put(translate(pixelData[offset]));		// R
+				ib.put(translate(pixelData[offset + 1]));	// G
+				ib.put(translate(pixelData[offset + 2]));	// B
+					
+			}
+		return ib;
+	}
+	
+	private static int translate(byte b) {
+		if (b < 0) {
+			return 256 + b;
+		}
+		return b;
+	}
+	
 	public void init(int width, int height) {
 		super.init(width, height);
+		
+		try{
+			cursorTex = TextureLoader.getTexture("PNG", 
+				ResourceLoader.getResourceAsStream("res/cursor.png"));
+			IntBuffer ib = formBuffer(cursorTex);
+			ib.rewind();
+			cursor = new Cursor(16,16,7,7,1,ib,null);
+			//Mouse.setNativeCursor(cursor);
+		} catch (IOException e) {
+			System.err.println("Resource not found: cursor.png");
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
 		
 		currentStage = new TimeLapseStage();
 		Merc player = new Merc(currentStage, 320, 240);

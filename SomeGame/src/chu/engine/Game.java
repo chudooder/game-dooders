@@ -5,6 +5,7 @@ import net.Merc;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
@@ -29,6 +30,7 @@ public abstract class Game {
 			Display.setDisplayMode(new DisplayMode(windowWidth, windowHeight));
 			Display.create();
 			Keyboard.create();
+			Mouse.create();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 			System.exit(0);

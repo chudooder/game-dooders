@@ -10,18 +10,26 @@ import chu.engine.RectangleHitbox;
 public class Pistol implements Weapon {
 	
 	private Merc owner;
-	private final int FIRE_RATE = 7;
-	private final float SPREAD = 0.05f;		//Approx. 3 degrees
-	private int timer;
+	private static final int FIRE_RATE = 7;			//.23 seconds
+	private static final float SPREAD = 0.05f;		//Approx. 3 degrees (cone)
+	private static final int RELOAD_TIME = 75;		//2.5 seconds
+	private static final int MAG_SIZE = 12;
+	private int shotTimer;
+	private int reloadTimer;
+	private boolean hasAmmo;
+	private int reserveAmmo = MAG_SIZE*3;
+	private int loadedAmmo = MAG_SIZE;
 
 	public Pistol(Merc owner) {
 		this.owner = owner;
-		timer = 0;
+		shotTimer = 0;
+		reloadTimer = 0;
+		hasAmmo = true;
 	}
 	
 	@Override
 	public void fire() {
-		if(timer == 0) {
+		if(hasAmmo && shotTimer <= 0 && reloadTimer <= 0) {
 			float angle = owner.getAngle() + SPREAD*owner.getRandom().nextFloat() - (SPREAD/2);
 			
 			ArrayList<RectangleHitbox> entities = new ArrayList<>();
@@ -41,7 +49,18 @@ public class Pistol implements Weapon {
 					owner.team);
 			owner.stage.addEntity(b);
 			
-			timer = FIRE_RATE;
+			shotTimer = FIRE_RATE;
+			loadedAmmo--;
+			System.out.println("Pistol ["+loadedAmmo+"/"+reserveAmmo+"]");
+			if(loadedAmmo == 0) {
+				if(reserveAmmo > 0) {
+					reloadTimer = RELOAD_TIME;
+					System.out.println("Pistol reloading...");
+				} else {
+					hasAmmo = false;
+					System.out.println("Pistol out of ammo!");
+				}
+			}
 		}
 	}
 
@@ -58,7 +77,13 @@ public class Pistol implements Weapon {
 
 	@Override
 	public void update() {
-		if(timer > 0) timer--;
+		if(shotTimer > -1) shotTimer--;
+		if(reloadTimer > -1) reloadTimer--;
+		if(reloadTimer == 0) {
+			loadedAmmo += Math.min(MAG_SIZE, reserveAmmo);
+			reserveAmmo -= Math.min(MAG_SIZE, reserveAmmo);
+			System.out.println("Pistol done reloading.");
+		}
 	}
 
 	@Override
