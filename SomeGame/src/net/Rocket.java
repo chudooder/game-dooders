@@ -13,6 +13,7 @@ import chu.engine.RectangleHitbox;
 public class Rocket extends Entity implements Collideable {
 	
 	private static Texture texture;
+	private static double SPEED = 4;
 	float xx;
 	float yy;
 	float angle;
@@ -37,9 +38,6 @@ public class Rocket extends Entity implements Collideable {
 
 	@Override
 	public void doCollisionWith(Entity entity) {
-		if(entity instanceof Merc) {
-			destroy();
-		}
 		
 		if(entity instanceof Wall) {
 			destroy();
@@ -48,8 +46,8 @@ public class Rocket extends Entity implements Collideable {
 
 	@Override
 	public void beginStep() {
-		xx += Math.cos(angle);
-		yy += Math.sin(angle);
+		xx += SPEED*Math.cos(angle);
+		yy += SPEED*Math.sin(angle);
 		x = (int)xx;
 		y = (int)yy;
 	}

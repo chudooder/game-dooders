@@ -19,14 +19,16 @@ public class Bullet extends Entity {
 	private int dx;
 	private int dy;
 	private int timer;
+	private int damage;
 	public Team team;
 	
-	public Bullet(TimeLapseStage stage, int x, int y, int dx, int dy, Team team) {
+	public Bullet(TimeLapseStage stage, int x, int y, int dx, int dy, Team team, int damage) {
 		super(stage, x, y);
 		hitbox = new LineHitbox(this, 0, 0, dx, dy);
 		this.dx = dx;
 		this.dy = dy;
 		this.team = team;
+		this.damage = damage;
 		timer = 3;
 		//who needs a sprite?
 	}
@@ -52,5 +54,9 @@ public class Bullet extends Entity {
 	@Override
 	public void beginStep() {
 		
+	}
+	
+	public int getDamage() {
+		return damage;
 	}
 }

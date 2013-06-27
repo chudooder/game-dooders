@@ -19,6 +19,7 @@ public class PlayerController implements Controller {
 		controls.put(Input.DOWN, Keyboard.KEY_S);
 		controls.put(Input.LEFT, Keyboard.KEY_A);
 		controls.put(Input.RIGHT, Keyboard.KEY_D);
+		controls.put(Input.RELOAD, Keyboard.KEY_R);
 	}
 	
 	public PlayerController(Map<Input, Integer> controls) {

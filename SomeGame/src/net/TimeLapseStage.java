@@ -37,13 +37,6 @@ public class TimeLapseStage extends Stage {
 		processAddStack();
 		processRemoveStack();
 	}
-	
-	public void render() {
-		for(Entity e : entities) {
-			e.render();
-		}
-	}
-	
 
 	public void endStep() {
 		for(Entity e : entities) {

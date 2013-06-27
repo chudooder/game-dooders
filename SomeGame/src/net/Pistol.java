@@ -10,9 +10,9 @@ import chu.engine.RectangleHitbox;
 public class Pistol implements Weapon {
 	
 	private Merc owner;
-	private static final int FIRE_RATE = 7;			//.23 seconds
+	private static final int FIRE_RATE = 20;			//.33 seconds
 	private static final float SPREAD = 0.05f;		//Approx. 3 degrees (cone)
-	private static final int RELOAD_TIME = 75;		//2.5 seconds
+	private static final int RELOAD_TIME = 150;		//2.5 seconds
 	private static final int MAG_SIZE = 12;
 	private int shotTimer;
 	private int reloadTimer;
@@ -46,20 +46,15 @@ public class Pistol implements Weapon {
 					owner.centerY,
 					(int)((dist)*Math.cos(angle)),
 					(int)((dist)*Math.sin(angle)),
-					owner.team);
+					owner.team,
+					15);
 			owner.stage.addEntity(b);
 			
 			shotTimer = FIRE_RATE;
 			loadedAmmo--;
 			System.out.println("Pistol ["+loadedAmmo+"/"+reserveAmmo+"]");
 			if(loadedAmmo == 0) {
-				if(reserveAmmo > 0) {
-					reloadTimer = RELOAD_TIME;
-					System.out.println("Pistol reloading...");
-				} else {
-					hasAmmo = false;
-					System.out.println("Pistol out of ammo!");
-				}
+				reload();
 			}
 		}
 	}
@@ -80,22 +75,34 @@ public class Pistol implements Weapon {
 		if(shotTimer > -1) shotTimer--;
 		if(reloadTimer > -1) reloadTimer--;
 		if(reloadTimer == 0) {
-			loadedAmmo += Math.min(MAG_SIZE, reserveAmmo);
-			reserveAmmo -= Math.min(MAG_SIZE, reserveAmmo);
+			int amt = Math.min(MAG_SIZE - loadedAmmo, reserveAmmo);
+			loadedAmmo += amt;
+			reserveAmmo -= amt;
 			System.out.println("Pistol done reloading.");
 		}
 	}
 
 	@Override
-	public void getLoadedAmmo() {
-		// TODO Auto-generated method stub
-		
+	public int getLoadedAmmo() {
+		return loadedAmmo;
 	}
 
 	@Override
-	public void getReserveAmmo() {
-		// TODO Auto-generated method stub
-		
+	public int getReserveAmmo() {
+		return reserveAmmo;
+	}
+
+	@Override
+	public void reload() {
+		if(reloadTimer < 0 && loadedAmmo < MAG_SIZE) {
+			if(reserveAmmo > 0) {
+				reloadTimer = RELOAD_TIME;
+				System.out.println("Pistol reloading...");
+			} else {
+				if(loadedAmmo == 0) hasAmmo = false;
+				System.out.println("Pistol out of ammo!");
+			}
+		}
 	}
 
 }

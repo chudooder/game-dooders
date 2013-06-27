@@ -5,8 +5,9 @@ public interface Weapon {
 	public void fire();
 	public void altfire();
 	public void update();
-	public void getLoadedAmmo();
-	public void getReserveAmmo();
+	public int getLoadedAmmo();
+	public int getReserveAmmo();
 	public Merc getOwner();
+	public void reload();
 	
 }

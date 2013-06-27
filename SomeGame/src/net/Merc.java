@@ -35,7 +35,6 @@ public class Merc extends Entity implements Collideable {
 
 	public static Texture texture;
 	private float angle;		//IN RADIANS.
-	private MercRecord record;
 	private Random random;
 	private boolean recording;
 	private Weapon weapon;
@@ -58,7 +57,7 @@ public class Merc extends Entity implements Collideable {
 	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
 		super(s, x, y);
 		sprite.addAnimation("LOOP", texture, 32, 32, 2, 1000);
-		hitbox = new RectangleHitbox(this, 4, 4, 24, 24);
+		hitbox = new RectangleHitbox(this, 5, 5, 22, 22);
 		renderPriority = Entity.RENDER_PRIORITY_PLAYER;
 		//Is there a way to get the seed?
 		random = new Random();
@@ -69,11 +68,14 @@ public class Merc extends Entity implements Collideable {
 		} else {
 			random.setSeed(c.getSeed());
 		}
-		weapon = new Pistol(this);
+		weapon = new RocketLauncher(this);
 		controller = c;
 		c.set(this);
 		health = 100;
 		team = t;
+		if(controller instanceof PlayerController) {
+			stage.addEntity(new AmmoHUD(stage, 0, 0, this));
+		}
 	}
 	
 	public Merc(TimeLapseStage s, int x, int y, Controller c) {
@@ -114,6 +116,8 @@ public class Merc extends Entity implements Collideable {
 			dx = -2;
 		if ((Boolean) inputs.get(Input.RIGHT))
 			dx = 2;
+		if ((Boolean) inputs.get(Input.RELOAD))
+			weapon.reload();
 
 		if (!stage.checkCollision(this, Wall.class, dx, 0)) {
 			x += dx;
@@ -157,6 +161,7 @@ public class Merc extends Entity implements Collideable {
 	public void render() {
 		sprite.renderRotated(x, y, angle);
 		//renderLightMap();
+
 	}
 
 	@Override
@@ -181,7 +186,7 @@ public class Merc extends Entity implements Collideable {
 		
 		if(e instanceof Bullet) {
 			if(team != ((Bullet)e).team) {
-				takeDamage(5);
+				takeDamage(((Bullet)e).getDamage());
 			}
 		}
 	}
@@ -372,6 +377,10 @@ public class Merc extends Entity implements Collideable {
 
 	public Random getRandom() {
 		return random;
+	}
+
+	public Weapon getWeapon() {
+		return weapon;
 	}
 
 }

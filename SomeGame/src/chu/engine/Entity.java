@@ -10,9 +10,10 @@ public abstract class Entity implements Comparable<Entity> {
 	public static final int UPDATE_PRIORITY_PLAYER = 2;
 	public static final int UPDATE_PRIORITY_ENEMY = 3;
 	
-	public static final int RENDER_PRIORITY_TERRAIN = 0;
+	public static final int RENDER_PRIORITY_TERRAIN = 10;
 	public static final int RENDER_PRIORITY_PLAYER = 30;
 	public static final int RENDER_PRIORITY_ENEMY = 40;
+	public static final int RENDER_PRIORITY_HUD = 50;
 
 
 	

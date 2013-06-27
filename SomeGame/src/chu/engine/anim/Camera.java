@@ -14,6 +14,10 @@ public class Camera {
 	int offsetY;
 	
 	public Camera(Entity e, int oX, int oY) {
+		set(e, oX, oY);
+	}
+	
+	public void set(Entity e, int oX, int oY) {
 		center = e;
 		offsetX = oX;
 		offsetY = oY;
@@ -26,12 +30,27 @@ public class Camera {
 		}
 	}
 	
+	public void lookBack() {
+		if(center != null) {
+			glTranslatef(center.x + offsetX - Game.getWindowWidth()/2, 
+					center.y + offsetY - Game.getWindowHeight()/2, 0);
+		}
+	}
+	
 	public int getX() {
 		return center.x + offsetX;
 	}
 	
 	public int getY() {
 		return center.y + offsetY;
+	}
+	
+	public int getScreenX() {
+		return center.x + offsetX - Game.getWindowWidth()/2;
+	}
+	
+	public int getScreenY() {
+		return center.y + offsetY - Game.getWindowHeight()/2;
 	}
 
 }

@@ -1,12 +1,14 @@
 package net;
 
 import java.io.IOException;
+import java.awt.Font;
 import java.nio.IntBuffer;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -19,11 +21,13 @@ import chu.engine.RectangleHitbox;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
+@SuppressWarnings("deprecation")
 public class TimeLapse extends Game {
 	
 	private TimeLapseStage currentStage;
 	private Texture cursorTex;
 	private Cursor cursor;
+	public static TrueTypeFont guiFont;
 	
 
 	public static void main(String[] args) {
@@ -76,6 +80,10 @@ public class TimeLapse extends Game {
 			e.printStackTrace();
 		}
 		
+		/*		FONTS		*/
+		guiFont = new TrueTypeFont(
+				new Font("Times New Roman", Font.BOLD, 24), false);
+		
 		currentStage = new TimeLapseStage();
 		Merc player = new Merc(currentStage, 320, 240);
 		currentStage.addEntity(player);
@@ -86,15 +94,6 @@ public class TimeLapse extends Game {
 		currentStage.addEntity(new Wall(currentStage, 0, 32, 32, 480));
 		currentStage.addEntity(new Wall(currentStage, 0, 512, 512, 32));
 		currentStage.addEntity(new Wall(currentStage, 512, 0, 32, 544));
-		
-		//Some testing code for the hitboxes. Delete later
-		Merc a = new Merc(currentStage, 0,0);
-		a.hitbox = new RectangleHitbox(a, 0, 0, 32, 32);
-		
-		Merc b = new Merc(currentStage, 16, 16);
-		b.hitbox = new RectangleHitbox(a, 0, 0, 32, 32);
-		
-		System.out.println(Hitbox.collisionExists(a, b));
 		
 		
 	}
