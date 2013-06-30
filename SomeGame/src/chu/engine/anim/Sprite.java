@@ -2,7 +2,6 @@ package chu.engine.anim;
 
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
 public class Sprite {

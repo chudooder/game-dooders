@@ -6,10 +6,8 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.RectangleHitbox;
-import chu.engine.Stage;
 import chu.engine.anim.Transform;
 
 public class Wall extends Entity {

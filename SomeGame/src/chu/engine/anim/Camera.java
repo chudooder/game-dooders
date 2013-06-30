@@ -1,11 +1,8 @@
 package chu.engine.anim;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
+import static org.lwjgl.opengl.GL11.glTranslatef;
 import chu.engine.Entity;
 import chu.engine.Game;
-import static org.lwjgl.opengl.GL11.*;
 
 public class Camera {
 	

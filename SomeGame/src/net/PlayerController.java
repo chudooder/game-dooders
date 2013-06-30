@@ -36,8 +36,14 @@ public class PlayerController implements Controller {
 			} else {
 				input.put(i, false);
 			}
-			
 		}
+		
+		if(Mouse.isButtonDown(0)) {
+			input.put(Input.FIRE, true);
+		} else {
+			input.put(Input.FIRE, false);
+		}
+		
 		if (relative != null) {
 			int[] mouse = new int[] { TimeLapse.getMouseX() - relative.x - 16,
 					TimeLapse.getMouseY() - relative.y - 16 };
@@ -46,11 +52,7 @@ public class PlayerController implements Controller {
 			input.put(Input.MOUSE, null);
 		}
 		
-		if(Mouse.isButtonDown(0)) {
-			input.put(Input.FIRE, true);
-		} else {
-			input.put(Input.FIRE, false);
-		}
+
 		record.put(frame, input);
 		//System.out.println(input);
 		return input;

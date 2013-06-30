@@ -1,19 +1,13 @@
 package net;
 
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glViewport;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeSet;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
@@ -25,8 +19,6 @@ import chu.engine.Game;
 import chu.engine.Hitbox;
 import chu.engine.LineHitbox;
 import chu.engine.RectangleHitbox;
-import chu.engine.Stage;
-import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
 public class Merc extends Entity implements Collideable {
@@ -36,7 +28,6 @@ public class Merc extends Entity implements Collideable {
 	public static Texture texture;
 	private float angle;		//IN RADIANS.
 	private Random random;
-	private boolean recording;
 	private Weapon weapon;
 	private Controller controller;
 	public int centerX;
@@ -68,12 +59,12 @@ public class Merc extends Entity implements Collideable {
 		} else {
 			random.setSeed(c.getSeed());
 		}
-		weapon = new RocketLauncher(this);
+		weapon = new Pistol(this);
 		controller = c;
 		c.set(this);
 		health = 100;
 		team = t;
-		if(controller instanceof PlayerController) {
+		if(controller instanceof NetworkController) {
 			stage.addEntity(new AmmoHUD(stage, 0, 0, this));
 		}
 	}
@@ -83,17 +74,12 @@ public class Merc extends Entity implements Collideable {
 	}
 	
 	public Merc(TimeLapseStage s, int x, int y) {
-		this(s, x, y, new PlayerController());
+		this(s, x, y, new NetworkController());
 	}
 
 	@Override
 	public void beginStep() {
 		weapon.update();
-		
-		int mX = TimeLapse.getMouseX() - x - 16;
-		int mY = TimeLapse.getMouseY() - y - 16;
-		angle = (float) Math.atan2(mY, mX);
-		if(mY < 0) angle += 2*Math.PI;
 		
 		frame++;
 		Map<Input, Object> inputs = controller.getInput(frame);

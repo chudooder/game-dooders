@@ -1,19 +1,15 @@
 package net;
 
-import java.util.HashMap;
-
-import org.lwjgl.input.Keyboard;
-import static org.lwjgl.opengl.GL11.*;
-
 import chu.engine.Collideable;
 import chu.engine.Entity;
-import chu.engine.Game;
 import chu.engine.Hitbox;
 import chu.engine.Stage;
-import chu.engine.anim.Renderer;
 
 public class TimeLapseStage extends Stage {
 
+	public Merc controlledMerc;
+	
+	
 	//Placeholder extension of Stage. Use this instead of the default class.
 	//We might need to do stuff here, like game logic
 	

@@ -1,8 +1,15 @@
 package net;
 
-import java.io.IOException;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+
 import java.awt.Font;
+import java.io.IOException;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
@@ -13,11 +20,7 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import chu.engine.Game;
-import chu.engine.Hitbox;
-import chu.engine.RectangleHitbox;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
@@ -27,6 +30,8 @@ public class TimeLapse extends Game {
 	private TimeLapseStage currentStage;
 	private Texture cursorTex;
 	private Cursor cursor;
+	private static Client client;
+	private static ArrayList<byte[]> serverMessages = new ArrayList<>();
 	public static TrueTypeFont guiFont;
 	
 
@@ -37,9 +42,21 @@ public class TimeLapse extends Game {
 		System.out.println("F2: Stop recording");
 		System.out.println("F3: Play back recording");
 		System.out.println("F4: Clear recording");
-		TimeLapse game = new TimeLapse();
-		game.init(640,480);
-		game.loop();
+		Thread server = new Thread() {
+			public void run() {
+				new Server(5678);
+			}
+		};
+		Thread client = new Thread() {
+			public void run() {
+				TimeLapse game = new TimeLapse();
+				game.init(640,480);
+				game.loop();
+			}
+		};
+		server.start();
+		client.start();
+
 	}
 	
 	private static IntBuffer formBuffer(Texture tex) {
@@ -66,6 +83,7 @@ public class TimeLapse extends Game {
 	
 	public void init(int width, int height) {
 		super.init(width, height);
+		client = new Client();
 		
 		try{
 			cursorTex = TextureLoader.getTexture("PNG", 
@@ -87,6 +105,7 @@ public class TimeLapse extends Game {
 		currentStage = new TimeLapseStage();
 		Merc player = new Merc(currentStage, 320, 240);
 		currentStage.addEntity(player);
+		currentStage.controlledMerc = player;
 		Renderer.setCamera(new Camera(player, 16, 16));
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
@@ -106,6 +125,9 @@ public class TimeLapse extends Game {
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				
 				getInput();
+				serverMessages.clear();
+				serverMessages.addAll(client.getMessages());
+				client.messages.clear();
 				processInput();
 				
 				glPushMatrix();
@@ -126,6 +148,10 @@ public class TimeLapse extends Game {
 		Display.destroy();
 	}
 	
+	public static ArrayList<byte[]> getServerMessages() {
+		return serverMessages;
+	}
+
 	//Returns the mouse pixel offset by the camera
 	public static int getMouseX() {
 		return Mouse.getX() + Renderer.getCamera().getX() - getWindowWidth()/2;
@@ -134,6 +160,10 @@ public class TimeLapse extends Game {
 	public static int getMouseY() {
 		return (getWindowHeight() - Mouse.getY())
 				+ Renderer.getCamera().getY() - getWindowHeight()/2;
+	}
+	
+	public static Client getClient() {
+		return client;
 	}
 
 }

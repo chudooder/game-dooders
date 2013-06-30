@@ -1,8 +1,6 @@
 package net;
 
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.TreeSet;
 
 import chu.engine.Entity;
 import chu.engine.RectangleHitbox;
@@ -10,7 +8,7 @@ import chu.engine.RectangleHitbox;
 public class Pistol implements Weapon {
 	
 	private Merc owner;
-	private static final int FIRE_RATE = 20;			//.33 seconds
+	private static final int FIRE_RATE = 10;			//.166 seconds
 	private static final float SPREAD = 0.05f;		//Approx. 3 degrees (cone)
 	private static final int RELOAD_TIME = 150;		//2.5 seconds
 	private static final int MAG_SIZE = 12;
