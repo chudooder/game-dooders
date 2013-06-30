@@ -7,6 +7,7 @@ import org.lwjgl.input.Mouse;
 
 import chu.engine.Entity;
 
+@Deprecated
 public class PlayerController implements Controller {
 	private Map<Input, Integer> controls;
 	private Entity relative; // getMousePos() returns position relative to this

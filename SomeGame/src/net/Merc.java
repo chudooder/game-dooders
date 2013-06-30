@@ -118,10 +118,6 @@ public class Merc extends Entity implements Collideable {
 			if (key == Keyboard.KEY_F3 && keys.get(key)) {
 				stage.addEntity(new Merc(stage,320,240,controller.getRecord(),Team.RED));
 			}
-			
-			if (key == Keyboard.KEY_F4 && keys.get(key)) {
-				controller = new PlayerController();
-			}
 		}
 
 		centerX = x + 16;

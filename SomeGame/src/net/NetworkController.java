@@ -130,24 +130,23 @@ public class NetworkController implements Controller {
 				input = previousFrame;
 			}
 		}
+		record.put(frame, input);
 		return input;
 	}
 
 	@Override
 	public Controller getRecord() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ControllerRecord(record, seed);
 	}
 
 	@Override
 	public long getSeed() {
-		// TODO Auto-generated method stub
-		return 0;
+		return seed;
 	}
 
 	@Override
 	public void setSeed(long s) {
-		// TODO Auto-generated method stub
+		seed = s;
 	}
 
 	@Override
