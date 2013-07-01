@@ -10,10 +10,10 @@ public class SortByRender implements Comparator<Entity> {
 
 	@Override
 	public int compare(Entity arg0, Entity arg1) {
-		if(arg0.renderPriority == arg1.renderPriority){ 
+		if(arg0.renderDepth == arg1.renderDepth){ 
 			return arg0.hashCode()-arg1.hashCode();
 		}
-		return arg0.renderPriority - arg1.renderPriority;
+		return (int)(arg0.renderDepth - arg1.renderDepth);
 	}
 
 }

@@ -1,16 +1,26 @@
 package net;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
 
 import chu.engine.Entity;
 import chu.engine.RectangleHitbox;
+import chu.engine.anim.Camera;
+import chu.engine.anim.Renderer;
 
 public class Pistol implements Weapon {
 	
 	private Merc owner;
+	private static Texture HUD;
+	private static Texture HUD_BULLET;
 	private static final int FIRE_RATE = 10;			//.166 seconds
 	private static final float SPREAD = 0.05f;		//Approx. 3 degrees (cone)
-	private static final int RELOAD_TIME = 150;		//2.5 seconds
+	private static final int RELOAD_TIME = 75;		//1.25 seconds
 	private static final int MAG_SIZE = 12;
 	private int shotTimer;
 	private int reloadTimer;
@@ -18,6 +28,18 @@ public class Pistol implements Weapon {
 	private int reserveAmmo = MAG_SIZE*3;
 	private int loadedAmmo = MAG_SIZE;
 
+	static {
+		try {
+			HUD = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/ammohud_pistol.png"));
+			HUD_BULLET = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/ammohud_pistol_bullet.png"));
+		} catch (IOException e) {
+			System.err.println("Resource(s) not found for Pistol");
+		}
+	}
+	
+	
 	public Pistol(Merc owner) {
 		this.owner = owner;
 		shotTimer = 0;
@@ -32,7 +54,7 @@ public class Pistol implements Weapon {
 			
 			ArrayList<RectangleHitbox> entities = new ArrayList<>();
 			for(Entity e : owner.stage.getAllEntities()) {
-				if(e instanceof Wall || e instanceof Merc) {
+				if(e instanceof Block || e instanceof Merc) {
 					entities.add((RectangleHitbox)e.hitbox);
 				}
 			}
@@ -101,6 +123,32 @@ public class Pistol implements Weapon {
 				System.out.println("Pistol out of ammo!");
 			}
 		}
+	}
+
+	@Override
+	public void renderHUD() {
+		Camera cam = Renderer.getCamera();
+		int hx = cam.getScreenX() + 512;
+		int hy = cam.getScreenY() + 416;
+		Renderer.render(HUD, 0, 0, 1, 1, hx, hy, hx+128, hy+64, 
+				Entity.RENDER_PRIORITY_HUD);
+		for(int i=0; i<loadedAmmo; i++) {
+			Renderer.render(HUD_BULLET, 0, 0, 1, 1, 
+					hx+57+(i%6)*7, hy+16+(i/6)*12, 
+					hx+65+(i%6)*7, hy+32+(i/6)*12,
+					Entity.RENDER_PRIORITY_HUD);
+		}
+		TimeLapse.guiFont.drawString(hx+100, hy+19, ""+reserveAmmo);
+		if(reloadTimer > 0) {
+			Renderer.drawLine(hx+61, 
+					hy+47, 
+					(int)(hx+61+(1-(double)(reloadTimer)/RELOAD_TIME)*60), 
+					hy+47, 
+					5,
+					Entity.RENDER_PRIORITY_HUD,
+					new Color(238,238,238));
+		}
+		
 	}
 
 }

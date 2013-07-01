@@ -58,7 +58,7 @@ public class TimeLapseStage extends Stage {
 		}
 	}
 	
-	public boolean checkCollision(Entity e, Class<Wall> c, int x, int y) {
+	public boolean checkCollision(Entity e, Class<Block> c, int x, int y) {
 		boolean b = false;
 		for(Entity other : entities) {
 			if(other.getClass().equals(c) && Hitbox.collisionExists(e, other, x, y) == 1) {

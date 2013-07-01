@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class Client {
@@ -11,16 +12,17 @@ public class Client {
 	Socket serverSocket;
 	OutputStream out;
 	InputStream in;
+	boolean open = true;
 	public volatile ArrayList<byte[]> messages;
 	
 	public Client() {
 		messages = new ArrayList<>();
 		try {
-			System.out.println("trying to connect");
+			System.out.println("CLIENT: CONNECTING TO SERVER");
 			serverSocket = new Socket(
 					java.net.InetAddress.getLocalHost().getHostName(), 
 					5678);
-			System.out.println("success");
+			System.out.println("CLIENT: SUCCESSFULLY CONNECTED");
 			in = serverSocket.getInputStream();
 			out = serverSocket.getOutputStream();
 			
@@ -36,14 +38,13 @@ public class Client {
 						out.close();
 						serverSocket.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						System.out.println("CLIENT: EXIT");
 					}
 				}
 			};
 			
 			serverIn.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -61,6 +62,17 @@ public class Client {
 	
 	public ArrayList<byte[]> getMessages() {
 		return messages;
+	}
+	
+	public void close() {
+		try {
+			in.close();
+			out.close();
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void sendMessage(byte[] message) {

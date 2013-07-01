@@ -10,7 +10,7 @@ import chu.engine.Entity;
 import chu.engine.RectangleHitbox;
 import chu.engine.anim.Transform;
 
-public class Wall extends Entity {
+public class Block extends Entity {
 	
 	private static Texture texture;
 	private int width;
@@ -25,29 +25,29 @@ public class Wall extends Entity {
 		}
 	}
 	
-	public Wall(TimeLapseStage stage, int x, int y) {
+	public Block(TimeLapseStage stage, int x, int y) {
 		super(stage, x, y);
 		sprite.addAnimation("LOOP", texture);
 		hitbox = new RectangleHitbox(this, 0, 0, 32, 32);
 		width = 32;
 		height = 32;
-		renderPriority = Entity.RENDER_PRIORITY_TERRAIN;
+		renderDepth = Entity.RENDER_PRIORITY_TERRAIN;
 	}
 	
-	public Wall(TimeLapseStage stage, int x, int y, int width, int height) {
+	public Block(TimeLapseStage stage, int x, int y, int width, int height) {
 		super(stage, x, y);
 		sprite.addAnimation("LOOP", texture);
 		hitbox = new RectangleHitbox(this, 0, 0, width, height);
 		this.width = width;
 		this.height = height;
-		renderPriority = Entity.RENDER_PRIORITY_TERRAIN;
+		renderDepth = Entity.RENDER_PRIORITY_TERRAIN;
 	}
 	
 	@Override
 	public void render() {
 		Transform t = new Transform();
 		t.setScale(width/32, height/32);
-		sprite.renderTransformed(x, y, t);
+		sprite.renderTransformed(x, y, renderDepth, t);
 	}
 
 	@Override

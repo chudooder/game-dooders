@@ -50,7 +50,7 @@ public class Sprite {
 		return animations.size();
 	}
 	
-	public void render(int x, int y) {
+	public void render(int x, int y, float depth) {
 		if(currentAnimation == null) return;
 		
 		int width = currentAnimation.getWidth();
@@ -60,11 +60,11 @@ public class Sprite {
 		float x1 = (float)(currentAnimation.getFrame()+1)/(float)(fakelength);
 		Texture texture = currentAnimation.getTexture();
 		
-		Renderer.render(texture, x0, 0, x1, 1, x, y, x+width, y+height);
+		Renderer.render(texture, x0, 0, x1, 1, x, y, x+width, y+height, depth);
 		
 	}
 	
-	public void renderRotated(int x, int y, float angle) {
+	public void renderRotated(int x, int y, float depth, float angle) {
 		if(currentAnimation == null) return;
 		
 		int width = currentAnimation.getWidth();
@@ -77,7 +77,7 @@ public class Sprite {
 		
 		Transform t = new Transform();
 		t.setRotation(angle);
-		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, t);
+		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, depth, t);
 	}
 
 	public void update() {
@@ -85,7 +85,7 @@ public class Sprite {
 		currentAnimation.update();
 	}
 
-	public void renderTransformed(int x, int y, Transform t) {
+	public void renderTransformed(int x, int y, float depth, Transform t) {
 		if(currentAnimation == null) return;
 		
 		int width = currentAnimation.getWidth();
@@ -95,7 +95,7 @@ public class Sprite {
 		float x1 = (float)(currentAnimation.getFrame()+1)/(float)(fakelength);
 		
 		Texture texture = currentAnimation.getTexture();
-		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, t);
+		Renderer.renderTransformed(texture, x0, 0, x1, 1, x, y, x+width, y+height, depth, t);
 	}
 	
 }

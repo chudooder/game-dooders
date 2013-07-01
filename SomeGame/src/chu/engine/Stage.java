@@ -42,7 +42,7 @@ public class Stage {
 	}
 
 	public void render() {
-		for(Entity e : renderQueue) {
+		for(Entity e : entities) {
 			e.render();
 		}
 	}

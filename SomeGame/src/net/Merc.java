@@ -3,6 +3,7 @@ package net;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -26,7 +27,7 @@ public class Merc extends Entity implements Collideable {
 	// Something
 
 	public static Texture texture;
-	private float angle;		//IN RADIANS.
+	private float angle; // IN RADIANS.
 	private Random random;
 	private Weapon weapon;
 	private Controller controller;
@@ -34,6 +35,7 @@ public class Merc extends Entity implements Collideable {
 	public int centerY;
 	private int frame;
 	private int health;
+	private int movespeed;
 	public Team team;
 
 	static {
@@ -44,15 +46,15 @@ public class Merc extends Entity implements Collideable {
 			System.err.println("Resource not found: guy.png");
 		}
 	}
-	
+
 	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
 		super(s, x, y);
 		sprite.addAnimation("LOOP", texture, 32, 32, 2, 1000);
 		hitbox = new RectangleHitbox(this, 5, 5, 22, 22);
-		renderPriority = Entity.RENDER_PRIORITY_PLAYER;
-		//Is there a way to get the seed?
+		renderDepth = Entity.RENDER_PRIORITY_PLAYER;
+		// Is there a way to get the seed?
 		random = new Random();
-		if(c.getSeed() == 0) {
+		if (c.getSeed() == 0) {
 			long seed = Double.doubleToLongBits(Math.random());
 			random.setSeed(seed);
 			c.setSeed(seed);
@@ -63,16 +65,14 @@ public class Merc extends Entity implements Collideable {
 		controller = c;
 		c.set(this);
 		health = 100;
+		movespeed = 2;
 		team = t;
-		if(controller instanceof NetworkController) {
-			stage.addEntity(new AmmoHUD(stage, 0, 0, this));
-		}
 	}
-	
+
 	public Merc(TimeLapseStage s, int x, int y, Controller c) {
 		this(s, x, y, c, Team.BLUE);
 	}
-	
+
 	public Merc(TimeLapseStage s, int x, int y) {
 		this(s, x, y, new NetworkController());
 	}
@@ -80,7 +80,7 @@ public class Merc extends Entity implements Collideable {
 	@Override
 	public void beginStep() {
 		weapon.update();
-		
+
 		frame++;
 		Map<Input, Object> inputs = controller.getInput(frame);
 		if (inputs == null) {
@@ -95,60 +95,55 @@ public class Merc extends Entity implements Collideable {
 		int dy = 0;
 		int dx = 0;
 		if ((Boolean) inputs.get(Input.UP))
-			dy = -2;
+			dy = -movespeed;
 		if ((Boolean) inputs.get(Input.DOWN))
-			dy = 2;
+			dy = movespeed;
 		if ((Boolean) inputs.get(Input.LEFT))
-			dx = -2;
+			dx = -movespeed;
 		if ((Boolean) inputs.get(Input.RIGHT))
-			dx = 2;
+			dx = movespeed;
 		if ((Boolean) inputs.get(Input.RELOAD))
 			weapon.reload();
 
-		if (!stage.checkCollision(this, Wall.class, dx, 0)) {
+		if (!stage.checkCollision(this, Block.class, dx, 0)) {
 			x += dx;
 		}
 
-		if (!stage.checkCollision(this, Wall.class, 0, dy)) {
+		if (!stage.checkCollision(this, Block.class, 0, dy)) {
 			y += dy;
 		}
 
 		HashMap<Integer, Boolean> keys = Game.getKeys();
 		for (int key : keys.keySet()) {
 			if (key == Keyboard.KEY_F3 && keys.get(key)) {
-				stage.addEntity(new Merc(stage,320,240,controller.getRecord(),Team.RED));
+				stage.addEntity(new Merc(stage, 320, 240, controller
+						.getRecord(), Team.RED));
 			}
 		}
 
 		centerX = x + 16;
 		centerY = y + 16;
-		
-		if((Boolean) inputs.get(Input.FIRE)){
+
+		if ((Boolean) inputs.get(Input.FIRE)) {
 			weapon.fire();
 		}
-		
 
-
-	}
-
-	@Override
-	public void endStep() {
-		// Recording movement
-		/*
-		 * Always Record if(recording) { record.addFrame(x, y, angle); }
-		 */
 	}
 
 	@Override
 	public void render() {
-		sprite.renderRotated(x, y, angle);
-		//renderLightMap();
+		sprite.renderRotated(x, y, renderDepth, angle);
+		if (controller instanceof NetworkController) {
+			weapon.renderHUD();
+			renderShadows();
+		}
+
 
 	}
 
 	@Override
 	public void doCollisionWith(Entity e) {
-		if (e instanceof Wall) {
+		if (e instanceof Block) {
 			int left = Math.abs(e.x - (x + 32));
 			int right = Math.abs(e.x + 32 - x);
 			int up = Math.abs(e.y - (y + 32));
@@ -165,164 +160,182 @@ public class Merc extends Entity implements Collideable {
 				y = e.y + 32;
 			}
 		}
-		
-		if(e instanceof Bullet) {
-			if(team != ((Bullet)e).team) {
-				takeDamage(((Bullet)e).getDamage());
+
+		if (e instanceof Bullet) {
+			if (team != ((Bullet) e).team) {
+				takeDamage(((Bullet) e).getDamage());
 			}
 		}
 	}
 
-
-	public float getAngle() {
-		return angle;
-	}
-
-	public double raytrace(ArrayList<RectangleHitbox> walls, RectangleHitbox ignore, double rayAngle) {
+	public double raytrace(ArrayList<RectangleHitbox> walls,
+			RectangleHitbox ignore, double rayAngle) {
 		double rads = rayAngle;
-		
-		LineHitbox line = new LineHitbox(this, 16, 16, 
-				(int)(600*Math.cos(rads)), 
-				(int)(600*Math.sin(rads)));
+
+		LineHitbox line = new LineHitbox(this, 16, 16,
+				(int) (600 * Math.cos(rads)), (int) (600 * Math.sin(rads)));
 
 		double best = 600;
 
-		for(RectangleHitbox w : walls) {
-			/* Do a sanity check first before we do some heavy computing.
-			 * Basically, this compares the rayAngle between the merc and the wall
-			 * (both the beginning and end points)
-			 * with the rayAngle the merc is facing. If it's past a certain threshold,
-			 * skip computing the intersection because it can't exist.
+		for (RectangleHitbox w : walls) {
+			/*
+			 * Do a sanity check first before we do some heavy computing.
+			 * Basically, this compares the rayAngle between the merc and the
+			 * wall (both the beginning and end points) with the rayAngle the
+			 * merc is facing. If it's past a certain threshold, skip computing
+			 * the intersection because it can't exist.
 			 */
-			if(w.equals(ignore)) continue;
-			float check1 = (float) Math.atan2(w.getY() - centerY, w.getX() - centerX);
-			float check2 = (float) Math.atan2(w.getEndY() - centerY, w.getEndX() - centerX);
-			double abs = Math.min(Math.abs(rayAngle - check1), Math.abs(rayAngle - check2));
-			if(abs > 120 && abs < 240) continue;
-			
-			//Now get the distance
-			float dist = (float) (600 * Hitbox.getIntersection
-					(w, line, 0, 0));
-			if(dist < best && dist > 0) best = dist;
+			if (w.equals(ignore))
+				continue;
+			float check1 = (float) Math.atan2(w.getY() - centerY, w.getX()
+					- centerX);
+			float check2 = (float) Math.atan2(w.getEndY() - centerY,
+					w.getEndX() - centerX);
+			double abs = Math.min(Math.abs(rayAngle - check1),
+					Math.abs(rayAngle - check2));
+			if (abs > 120 && abs < 240)
+				continue;
+
+			// Now get the distance
+			float dist = (float) (600 * Hitbox.getIntersection(w, line, 0, 0));
+			if (dist < best && dist > 0)
+				best = dist;
 
 		}
-
-
-		float pointX = centerX + (float) (best * Math.cos(rads));
-		float pointY = centerY + (float) (best * Math.sin(rads));
-		
-		//Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
+		// Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 
 		return best;
 	}
 
-	private void renderLightMap() {
-		ArrayList<Vertex> vertices = new ArrayList<>();
-		ArrayList<RectangleHitbox> walls = new ArrayList<>();
-		ArrayList<Angle> angles = new ArrayList<>();
-		
-		for(Entity e : stage.getAllEntities()) {
-			if(e instanceof Wall) {
-				Wall w = (Wall)e;
-				walls.add((RectangleHitbox)w.hitbox);
+	public void renderShadows() {
+		ArrayList<Block> blocks = new ArrayList<>();
+		for (Entity e : stage.getAllEntities()) {
+			if (e instanceof Block) {
+				Block w = (Block) e;
+				blocks.add(w);
 			}
 		}
 
-		
-		//Get a list of angles to raytrace to, then raytrace and get the actual points
-		for(RectangleHitbox wall : walls) {
-			for(int i = wall.getX(); i <= wall.getEndX(); i+=wall.getWidth()) {
-				for(int j = wall.getY(); j <= wall.getEndY(); j+=wall.getHeight()) {
-					double r = Math.atan2(j - y - 16, i - x - 16);
+		Comparator<Vertex> byAngle = new Comparator<Vertex>() {
+			@Override
+			public int compare(Vertex arg0, Vertex arg1) {
+				double angle0 = Math.atan2(arg0.y - centerY, arg0.x - centerX);
+				double angle1 = Math.atan2(arg1.y - centerY, arg1.x - centerX);
+				if (angle0 > angle1)
+					return 1;
+				if (angle0 < angle1)
+					return -1;
 
-					boolean ignore = false;
+				double dist0 = Math.sqrt(Math.pow(arg0.y - centerY, 2)
+						+ Math.pow(arg0.x - centerX, 2));
+				double dist1 = Math.sqrt(Math.pow(arg1.y - centerY, 2)
+						+ Math.pow(arg1.x - centerX, 2));
+				if(dist0 > dist1)
+					return 1;
+				if(dist0 < dist1)
+					return -1;
+				return 0;
+			}
+		};
 
-					if(i==wall.getX() && j==wall.getY() || i==wall.getEndX() && j==wall.getEndY()) {
-						if(centerX<i && centerY>j || centerX>i && centerY<j) ignore = true;
-					} else {
-						if (centerX > i && centerY > j || centerX < i
-								&& centerY < j)
-							ignore = true;
+		// fuck angles
+		Comparator<Vertex> special = new Comparator<Vertex>() {
+			@Override
+			public int compare(Vertex arg0, Vertex arg1) {
+				double angle0 = Math.atan2(arg0.y - centerY, arg0.x - centerX);
+				double angle1 = Math.atan2(arg1.y - centerY, arg1.x - centerX);
+				if (angle0 * angle1 > 0) {
+					if (angle0 > angle1)
+						return 1;
+					if (angle0 < angle1)
+						return -1;
+				} else {
+					if (angle0 > angle1)
+						return -1;
+					if (angle0 < angle1)
+						return 1;
+				}
+
+				return 0;
+			}
+		};
+
+		for (Block block : blocks) {
+			ArrayList<Vertex> vertices = new ArrayList<>();
+			for (int i = block.x; i <= block.getEndX(); i += block.getWidth()) {
+				for (int j = block.y; j <= block.getEndY(); j += block
+						.getHeight()) {
+					boolean add = true;
+					if (i == block.x && j == block.y) {
+						if (centerX <= i && centerY <= j)
+							add = false;
+					} else if (i == block.x && j == block.getEndY()) {
+						if (centerX <= i && centerY >= j)
+							add = false;
+					} else if (i == block.getEndX() && j == block.getEndY()) {
+						if (centerX >= i && centerY >= j)
+							add = false;
+					} else if (i == block.getEndX() && j == block.y) {
+						if (centerX >= i && centerY <= j)
+							add = false;
 					}
-					angles.add(new Angle(r, wall, ignore, i, j));
+
+					if (add)
+						vertices.add(new Vertex(i, j));
 				}
 			}
-		}
-		Collections.sort(angles);
 
-		for (Angle a : angles) {
-			double r = a.angle;
-			boolean ignore = a.ignore;
-			RectangleHitbox wall = a.parent;
-			int i = a.i;
-			int j = a.j;
-			
-			double rads = r;
-
-			if (ignore) {
-				double dist = raytrace(walls, wall, r);
-				Vertex v = new Vertex((int) (centerX + dist * Math.cos(rads)),
-						(int) (centerY + dist * Math.sin(rads)));
-
-				// Compare it to the previous vertex
-				boolean sameWall = false;
-				if (vertices.size() > 0) {
-					Vertex prev = vertices.get(vertices.size() - 1);
-					if (prev.x == v.x || prev.y == v.y) {
-						sameWall = true;
-					}
-				}
-
-				vertices.add(v);
-				Renderer.drawSquare(v.x - 2, v.y - 2, 4, Color.red);
-
-				Vertex vv = new Vertex(i, j);
-				double realDist = Math.sqrt(Math.pow(vv.x - centerX, 2)
-						+ Math.pow(vv.y - centerY, 2));
-				if (realDist < dist) {
-					if (sameWall) {
-						vertices.add(vv);
-					} else {
-						vertices.add(vertices.size() - 1, vv);
-					}
-					Renderer.drawSquare(vv.x - 2, vv.y - 2, 4, Color.blue);
-				}
-
+			if (centerX > block.getEndX() && centerY > block.y
+					&& centerY < block.getEndY()) {
+				Collections.sort(vertices, special);
 			} else {
-				double dist = raytrace(walls, null, r);
-				Vertex v = new Vertex((int) (centerX + dist * Math.cos(rads)),
-						(int) (centerY + dist * Math.sin(rads)));
-				vertices.add(v);
-				Renderer.drawSquare(v.x - 2, v.y - 2, 4, Color.green);
+				Collections.sort(vertices, byAngle);
+			}
+			Vertex prevOuter = null;
+			for (int i = 0; i < vertices.size(); i++) {
+				Vertex v = vertices.get(i);
+				double angle = Math.atan2(v.y - centerY, v.x - centerX);
+				Vertex outer = new Vertex((int) (v.x + 1000 * Math.cos(angle)),
+						(int) (v.y + 1000 * Math.sin(angle)));
+				Color color = new Color(25, 25, 25);
+				if (i != vertices.size() - 1) {
+					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
+							vertices.get(i + 1).x, vertices.get(i + 1).y,
+							Entity.RENDER_PRIORITY_SHADOW, color);
+				}
+				if (i != 0) {
+					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
+							prevOuter.x, prevOuter.y,
+							Entity.RENDER_PRIORITY_SHADOW, color);
+				}
+				prevOuter = outer;
+//				TimeLapse.guiFont.drawString(v.x, v.y, "" + i);
 			}
 		}
 
-		if (vertices.size() > 0) {
-			Renderer.drawLine(vertices.get(0).x, vertices.get(0).y, centerX,
-					centerY, 1, Color.white);
-			vertices.add(vertices.get(0));
-		}
+	}
 
-		for (int i = 0; i < vertices.size() - 1; i++) {
-
-			// Renderer.drawTriangle(centerX, centerY, vertices.get(i).x,
-			// vertices.get(i).y,
-			// vertices.get(i+1).x, vertices.get(i+1).y, new Color(255, 255,
-			// 255, 50));
-
-			// Renderer.drawLine(vertices.get(i).x, vertices.get(i).y,
-			// vertices.get(i+1).x, vertices.get(i+1).y, 1, Color.white);
-		}
+	public float getAngle() {
+		return angle;
 	}
 
 	public int getHealth() {
 		return health;
 	}
 
+	public Random getRandom() {
+		return random;
+	}
+
+	public Weapon getWeapon() {
+		return weapon;
+	}
+
 	public void takeDamage(int damage) {
 		health -= damage;
 		System.out.println(health);
-		if(health <= 0) destroy();
+		if (health <= 0)
+			destroy();
 	}
 
 	class Vertex {
@@ -342,7 +355,6 @@ public class Merc extends Entity implements Collideable {
 		int i;
 		int j;
 
-		
 		public Angle(double a, RectangleHitbox wall, boolean b, int i, int j) {
 			angle = a;
 			parent = wall;
@@ -357,12 +369,21 @@ public class Merc extends Entity implements Collideable {
 		}
 	}
 
-	public Random getRandom() {
-		return random;
+	class Wall {
+		int x0, y0, x1, y1;
+
+		public Wall(int a, int b, int c, int d) {
+			x0 = a;
+			y0 = b;
+			x1 = c;
+			y1 = d;
+		}
 	}
 
-	public Weapon getWeapon() {
-		return weapon;
+	@Override
+	public void endStep() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

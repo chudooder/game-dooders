@@ -10,10 +10,13 @@ public abstract class Entity implements Comparable<Entity> {
 	public static final int UPDATE_PRIORITY_PLAYER = 2;
 	public static final int UPDATE_PRIORITY_ENEMY = 3;
 	
-	public static final int RENDER_PRIORITY_TERRAIN = 10;
-	public static final int RENDER_PRIORITY_PLAYER = 30;
-	public static final int RENDER_PRIORITY_ENEMY = 40;
-	public static final int RENDER_PRIORITY_HUD = 50;
+	public static final float RENDER_PRIORITY_HUD = 0.0f;
+	public static final float RENDER_PRIORITY_TERRAIN = 0.1f;
+	public static final float RENDER_PRIORITY_SHADOW = 0.2f;
+	public static final float RENDER_PRIORITY_ENEMY = 0.5f;
+	public static final float RENDER_PRIORITY_PLAYER = 0.6f;
+	public static final float RENDER_PRIORITY_BULLET = 0.7f;
+
 
 
 	
@@ -22,7 +25,7 @@ public abstract class Entity implements Comparable<Entity> {
 	public int prevX;
 	public int prevY;
 	public int updatePriority;
-	public int renderPriority;
+	public float renderDepth;
 	public Sprite sprite;
 	public Hitbox hitbox;
 	public TimeLapseStage stage;
@@ -59,7 +62,7 @@ public abstract class Entity implements Comparable<Entity> {
 	public abstract void endStep();
 	
 	public void render() {
-		sprite.render(x, y);
+		sprite.render(x, y, renderDepth);
 	}
 	
 	//Called when the entity is removed from the stage.

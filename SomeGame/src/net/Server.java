@@ -50,7 +50,7 @@ public class Server {
 	public Server(int port) {
 		try {
 			serverSocket = new ServerSocket(port);
-			System.out.println("waiting for client");
+			System.out.println("SERVER: WAITING FOR CONNECTION");
 			connectSocket = serverSocket.accept();
 			
 			in = connectSocket.getInputStream();
@@ -60,13 +60,13 @@ public class Server {
 			Thread clientIn = new Thread() {
 				public void run() {
 					try {
-						System.out.println("SERVER START");
+						System.out.println("SERVER: START");
 						byte[] line = new byte[16];
 						while(in.read(line) != -1) {
 							processInput(line);
 						}
 						
-						System.out.println("SERVER EXIT");
+						System.out.println("SERVER: EXIT");
 					
 						in.close();
 						out.close();

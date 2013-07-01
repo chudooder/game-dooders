@@ -39,7 +39,7 @@ public class Rocket extends Entity implements Collideable {
 	@Override
 	public void doCollisionWith(Entity entity) {
 		
-		if(entity instanceof Wall) {
+		if(entity instanceof Block) {
 			destroy();
 		}
 	}
@@ -60,7 +60,7 @@ public class Rocket extends Entity implements Collideable {
 	
 	@Override
 	public void render() {
-		sprite.renderRotated(x, y, angle);
+		sprite.renderRotated(x, y, renderDepth, angle);
 	}
 
 }

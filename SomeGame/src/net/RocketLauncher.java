@@ -82,4 +82,10 @@ public class RocketLauncher implements Weapon {
 		}
 	}
 
+	@Override
+	public void renderHUD() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

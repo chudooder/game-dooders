@@ -1,10 +1,6 @@
 package net;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.*;
 
 import java.awt.Font;
 import java.io.IOException;
@@ -84,7 +80,6 @@ public class TimeLapse extends Game {
 	public void init(int width, int height) {
 		super.init(width, height);
 		client = new Client();
-		
 		try{
 			cursorTex = TextureLoader.getTexture("PNG", 
 				ResourceLoader.getResourceAsStream("res/cursor.png"));
@@ -100,7 +95,7 @@ public class TimeLapse extends Game {
 		
 		/*		FONTS		*/
 		guiFont = new TrueTypeFont(
-				new Font("Times New Roman", Font.BOLD, 24), false);
+				new Font("Open Sans", Font.BOLD, 17), false);
 		
 		currentStage = new TimeLapseStage();
 		Merc player = new Merc(currentStage, 320, 240);
@@ -109,10 +104,10 @@ public class TimeLapse extends Game {
 		Renderer.setCamera(new Camera(player, 16, 16));
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
-		currentStage.addEntity(new Wall(currentStage, 0, 0, 512, 32));
-		currentStage.addEntity(new Wall(currentStage, 0, 32, 32, 480));
-		currentStage.addEntity(new Wall(currentStage, 0, 512, 512, 32));
-		currentStage.addEntity(new Wall(currentStage, 512, 0, 32, 544));
+//		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
+//		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));
+//		currentStage.addEntity(new Block(currentStage, 32, 512, 480, 32));
+//		currentStage.addEntity(new Block(currentStage, 512, 32, 32, 480));
 		
 		
 	}
@@ -122,8 +117,10 @@ public class TimeLapse extends Game {
 		while(!Display.isCloseRequested()) {
 			if(timeDelta > 16666667) {			//60 FPS
 				time = System.nanoTime();
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				
+				glClear(GL_COLOR_BUFFER_BIT |
+				        GL_DEPTH_BUFFER_BIT |
+				        GL_STENCIL_BUFFER_BIT);
+				glClearDepth(1.0f);
 				getInput();
 				serverMessages.clear();
 				serverMessages.addAll(client.getMessages());
@@ -145,6 +142,7 @@ public class TimeLapse extends Game {
 			timeDelta = System.nanoTime()-time;
 		}
 		
+		client.close();
 		Display.destroy();
 	}
 	

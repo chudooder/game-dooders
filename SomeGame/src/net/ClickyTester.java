@@ -18,7 +18,7 @@ public class ClickyTester extends Entity {
 		if(Keyboard.isKeyDown(Keyboard.KEY_Z)) {
 			if(Mouse.isButtonDown(0) && !leftClicked) {
 				leftClicked = true;
-				stage.addEntity(new Wall(stage, TimeLapse.getMouseX(), 
+				stage.addEntity(new Block(stage, TimeLapse.getMouseX(), 
 						TimeLapse.getMouseY(), 64, 64));
 			} else if(!Mouse.isButtonDown(0) && leftClicked) {
 				leftClicked = false;
@@ -26,7 +26,7 @@ public class ClickyTester extends Entity {
 			
 			if(Mouse.isButtonDown(1) && !rightClicked) {
 				rightClicked = true;
-				stage.addEntity(new Wall(stage, TimeLapse.getMouseX()/32*32, 
+				stage.addEntity(new Block(stage, TimeLapse.getMouseX()/32*32, 
 						TimeLapse.getMouseY()/32*32));
 			} else if(!Mouse.isButtonDown(1) && rightClicked) {
 				rightClicked = false;

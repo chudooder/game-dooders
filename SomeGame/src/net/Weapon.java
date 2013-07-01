@@ -9,5 +9,6 @@ public interface Weapon {
 	public int getReserveAmmo();
 	public Merc getOwner();
 	public void reload();
+	public void renderHUD();
 	
 }

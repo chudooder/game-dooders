@@ -48,7 +48,7 @@ public class Bullet extends Entity {
 		} else {
 			c = Color.red;
 		}
-		Renderer.drawLine(x, y, x+dx, y+dy, 2, c);
+		Renderer.drawLine(x, y, x+dx, y+dy, 2, Entity.RENDER_PRIORITY_BULLET, c);
 	}
 
 	@Override
