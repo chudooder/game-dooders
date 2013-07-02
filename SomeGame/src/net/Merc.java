@@ -208,6 +208,30 @@ public class Merc extends Entity implements Collideable {
 	}
 
 	public void renderShadows() {
+		
+		//Start with the hard fov
+		float start = (float) (angle + Math.PI/4);
+		float innerRad = 32;
+		float outerRad = 600;
+		Color shadowColor = new Color(0, 0, 0);
+		
+		for(float i = start; i < start + Math.PI*1.4; i+= Math.PI/8) {
+			float x0 = (float)(centerX + innerRad*Math.cos(i));
+			float y0 = (float)(centerY + innerRad*Math.sin(i));
+			float x1 = (float)(centerX + outerRad*Math.cos(i));
+			float y1 = (float)(centerY + outerRad*Math.sin(i));
+			float x2 = (float)(centerX + innerRad*Math.cos(i+Math.PI/8));
+			float y2 = (float)(centerY + innerRad*Math.sin(i+Math.PI/8));
+			float x3 = (float)(centerX + outerRad*Math.cos(i+Math.PI/8));
+			float y3 = (float)(centerY + outerRad*Math.sin(i+Math.PI/8));
+			Renderer.drawTriangle(x1, y1, x2, y2, x3, y3, 
+					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+			Renderer.drawTriangle(x0, y0, x1, y1, x2, y2, 
+					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+			
+		}
+		
+		
 		ArrayList<Block> blocks = new ArrayList<>();
 		for (Entity e : stage.getAllEntities()) {
 			if (e instanceof Block) {
@@ -297,16 +321,15 @@ public class Merc extends Entity implements Collideable {
 				double angle = Math.atan2(v.y - centerY, v.x - centerX);
 				Vertex outer = new Vertex((int) (v.x + 1000 * Math.cos(angle)),
 						(int) (v.y + 1000 * Math.sin(angle)));
-				Color color = new Color(25, 25, 25);
 				if (i != vertices.size() - 1) {
 					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
 							vertices.get(i + 1).x, vertices.get(i + 1).y,
-							Entity.RENDER_PRIORITY_SHADOW, color);
+							Entity.RENDER_PRIORITY_SHADOW, shadowColor);
 				}
 				if (i != 0) {
 					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
 							prevOuter.x, prevOuter.y,
-							Entity.RENDER_PRIORITY_SHADOW, color);
+							Entity.RENDER_PRIORITY_SHADOW, shadowColor);
 				}
 				prevOuter = outer;
 //				TimeLapse.guiFont.drawString(v.x, v.y, "" + i);

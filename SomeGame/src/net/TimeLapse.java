@@ -11,6 +11,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
@@ -104,10 +105,10 @@ public class TimeLapse extends Game {
 		Renderer.setCamera(new Camera(player, 16, 16));
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
-//		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
-//		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));
-//		currentStage.addEntity(new Block(currentStage, 32, 512, 480, 32));
-//		currentStage.addEntity(new Block(currentStage, 512, 32, 32, 480));
+		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
+		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));
+		currentStage.addEntity(new Block(currentStage, 32, 512, 480, 32));
+		currentStage.addEntity(new Block(currentStage, 512, 32, 32, 480));
 		
 		
 	}
@@ -132,6 +133,7 @@ public class TimeLapse extends Game {
 					currentStage.beginStep();
 					currentStage.onStep();
 					Renderer.getCamera().lookThrough();
+					Renderer.drawSquare(0, 0, 1024, 1.0f, new Color(50,50,50));
 					currentStage.render();
 					currentStage.endStep();
 				}
