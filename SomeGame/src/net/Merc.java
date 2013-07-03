@@ -10,6 +10,8 @@ import java.util.Random;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.openal.Audio;
+import org.newdawn.slick.openal.AudioLoader;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -20,13 +22,15 @@ import chu.engine.Game;
 import chu.engine.Hitbox;
 import chu.engine.LineHitbox;
 import chu.engine.RectangleHitbox;
+import chu.engine.anim.AudioPlayer;
 import chu.engine.anim.Renderer;
 
 public class Merc extends Entity implements Collideable {
 
 	// Something
 
-	public static Texture texture;
+	public static Texture TEX_TEXTURE;
+	public static Audio SFX_HURT;
 	private float angle; // IN RADIANS.
 	private Random random;
 	private Weapon weapon;
@@ -41,8 +45,10 @@ public class Merc extends Entity implements Collideable {
 
 	static {
 		try {
-			texture = TextureLoader.getTexture("PNG",
+			TEX_TEXTURE = TextureLoader.getTexture("PNG",
 					ResourceLoader.getResourceAsStream("res/guy.png"));
+			SFX_HURT = AudioLoader.getAudio("OGG",
+					ResourceLoader.getResourceAsStream("res/hurt.ogg"));
 		} catch (IOException e) {
 			System.err.println("Resource not found: guy.png");
 		}
@@ -50,7 +56,7 @@ public class Merc extends Entity implements Collideable {
 
 	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
 		super(s, x, y);
-		sprite.addAnimation("LOOP", texture, 32, 32, 2, 1000);
+		sprite.addAnimation("LOOP", TEX_TEXTURE, 32, 32, 2, 1000);
 		hitbox = new RectangleHitbox(this, 5, 5, 22, 22);
 		renderDepth = Entity.RENDER_PRIORITY_PLAYER;
 		// Is there a way to get the seed?
@@ -361,6 +367,7 @@ public class Merc extends Entity implements Collideable {
 
 	public void takeDamage(int damage) {
 		health -= damage;
+		AudioPlayer.playAudio(SFX_HURT, 1, 1, centerX, centerY, 0, 200.0f);
 		System.out.println(health);
 		if (health <= 0)
 			destroy();

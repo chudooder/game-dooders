@@ -20,6 +20,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 import chu.engine.Game;
+import chu.engine.anim.AudioPlayer;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
@@ -105,7 +106,9 @@ public class TimeLapse extends Game {
 		Merc player = new Merc(currentStage, 320, 240);
 		currentStage.addEntity(player);
 		currentStage.controlledMerc = player;
-		Renderer.setCamera(new Camera(player, 16, 16));
+		Camera playerCam = new Camera(player, 16, 16);
+		Renderer.setCamera(playerCam);
+		AudioPlayer.setCamera(playerCam);
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
 		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
