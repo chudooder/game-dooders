@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.openal.SoundStore;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -80,6 +82,7 @@ public class TimeLapse extends Game {
 	
 	public void init(int width, int height) {
 		super.init(width, height);
+		Display.setVSyncEnabled(true);
 		client = new Client();
 		try{
 			cursorTex = TextureLoader.getTexture("PNG", 
@@ -123,6 +126,7 @@ public class TimeLapse extends Game {
 				        GL_STENCIL_BUFFER_BIT);
 				glClearDepth(1.0f);
 				getInput();
+				SoundStore.get().poll(0);
 				serverMessages.clear();
 				serverMessages.addAll(client.getMessages());
 				client.messages.clear();
@@ -133,7 +137,7 @@ public class TimeLapse extends Game {
 					currentStage.beginStep();
 					currentStage.onStep();
 					Renderer.getCamera().lookThrough();
-					Renderer.drawSquare(0, 0, 1024, 1.0f, new Color(50,50,50));
+					Renderer.drawSquare(0, 0, 1024, 1.0f, new Color(0,0,50));
 					currentStage.render();
 					currentStage.endStep();
 				}
@@ -145,6 +149,7 @@ public class TimeLapse extends Game {
 		}
 		
 		client.close();
+		AL.destroy();
 		Display.destroy();
 	}
 	

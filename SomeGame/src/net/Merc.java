@@ -36,6 +36,7 @@ public class Merc extends Entity implements Collideable {
 	private int frame;
 	private int health;
 	private int movespeed;
+	private boolean renderShadows;
 	public Team team;
 
 	static {
@@ -67,6 +68,7 @@ public class Merc extends Entity implements Collideable {
 		health = 100;
 		movespeed = 2;
 		team = t;
+		renderShadows = true;
 	}
 
 	public Merc(TimeLapseStage s, int x, int y, Controller c) {
@@ -119,6 +121,9 @@ public class Merc extends Entity implements Collideable {
 				stage.addEntity(new Merc(stage, 320, 240, controller
 						.getRecord(), Team.RED));
 			}
+			if (key == Keyboard.KEY_F1 && keys.get(key)) {
+				renderShadows = !renderShadows;
+			}
 		}
 
 		centerX = x + 16;
@@ -135,7 +140,7 @@ public class Merc extends Entity implements Collideable {
 		sprite.renderRotated(x, y, renderDepth, angle);
 		if (controller instanceof NetworkController) {
 			weapon.renderHUD();
-			renderShadows();
+			if(renderShadows) renderShadows();
 		}
 
 

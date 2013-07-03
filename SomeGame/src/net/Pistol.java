@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.openal.Audio;
+import org.newdawn.slick.openal.AudioLoader;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -18,6 +20,9 @@ public class Pistol implements Weapon {
 	private Merc owner;
 	private static Texture HUD;
 	private static Texture HUD_BULLET;
+	private static Audio SHOOT;
+	//Adjusts how volume scales with distance.
+	private static final float SOUND_FADE_LENGTH = 200.0f;
 	private static final int FIRE_RATE = 10;			//.166 seconds
 	private static final float SPREAD = 0.05f;		//Approx. 3 degrees (cone)
 	private static final int RELOAD_TIME = 75;		//1.25 seconds
@@ -34,6 +39,8 @@ public class Pistol implements Weapon {
 					ResourceLoader.getResourceAsStream("res/ammohud_pistol.png"));
 			HUD_BULLET = TextureLoader.getTexture("PNG",
 					ResourceLoader.getResourceAsStream("res/ammohud_pistol_bullet.png"));
+			SHOOT = AudioLoader.getAudio("OGG", 
+					ResourceLoader.getResourceAsStream("res/gunshot.ogg"));
 		} catch (IOException e) {
 			System.err.println("Resource(s) not found for Pistol");
 		}
@@ -76,6 +83,13 @@ public class Pistol implements Weapon {
 			if(loadedAmmo == 0) {
 				reload();
 			}
+			Camera cam = Renderer.getCamera();
+//			SHOOT.playAsSoundEffect(1, 1, false,
+//					cam.getX()-owner.x, cam.getY()-owner.y, 0);
+			SHOOT.playAsSoundEffect(1, 1, false,
+					(float)(owner.centerX-cam.getX())/SOUND_FADE_LENGTH, 
+					(float)(owner.centerY-cam.getY())/SOUND_FADE_LENGTH, 
+					0);
 		}
 	}
 

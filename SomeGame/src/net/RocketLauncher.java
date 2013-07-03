@@ -1,5 +1,16 @@
 package net;
 
+import java.io.IOException;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
+
+import chu.engine.Entity;
+import chu.engine.anim.Camera;
+import chu.engine.anim.Renderer;
+
 public class RocketLauncher implements Weapon {
 	
 	private Merc owner;
@@ -7,11 +18,24 @@ public class RocketLauncher implements Weapon {
 	private static final float SPREAD = 0.0f;		//No spread
 	private static final int RELOAD_TIME = 180;		//3 seconds
 	private static final int MAG_SIZE = 1;
+	private static Texture HUD;
+	private static Texture HUD_ROCKET;
 	private int shotTimer;
 	private int reloadTimer;
 	private boolean hasAmmo;
 	private int reserveAmmo = MAG_SIZE*5;
 	private int loadedAmmo = MAG_SIZE;
+	
+	static {
+		try {
+			HUD = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/ammohud_rocket.png"));
+			HUD_ROCKET = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/ammohud_rocket_rocket.png"));
+		} catch (IOException e) {
+			System.err.println("Resource(s) not found for Rocket Launcher");
+		}
+	}
 
 	public RocketLauncher(Merc merc) {
 		owner = merc;
@@ -84,8 +108,27 @@ public class RocketLauncher implements Weapon {
 
 	@Override
 	public void renderHUD() {
-		// TODO Auto-generated method stub
-		
+		Camera cam = Renderer.getCamera();
+		int hx = cam.getScreenX() + 512;
+		int hy = cam.getScreenY() + 416;
+		Renderer.render(HUD, 0, 0, 1, 1, hx, hy, hx+128, hy+64, 
+				Entity.RENDER_PRIORITY_HUD);
+		if(loadedAmmo > 0) {
+			Renderer.render(HUD_ROCKET, 0, 0, 1, 1, 
+					hx+92, hy+17, 
+					hx+100, hy+49,
+					Entity.RENDER_PRIORITY_HUD);
+		}
+		TimeLapse.guiFont.drawString(hx+108, hy+15, ""+reserveAmmo);
+		if(reloadTimer > 0) {
+			Renderer.drawLine(hx+63, 
+					hy+47, 
+					(int)(hx+63+(1-(double)(reloadTimer)/RELOAD_TIME)*60), 
+					hy+47, 
+					5,
+					Entity.RENDER_PRIORITY_HUD,
+					new Color(238,238,238));
+		}
 	}
 
 }
