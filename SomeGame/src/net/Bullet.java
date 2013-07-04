@@ -42,13 +42,15 @@ public class Bullet extends Entity {
 	
 	@Override
 	public void render() {
-		Color c;
+		Color c1, c2;
 		if(team == Team.BLUE){ 
-			c = Color.blue;
+			c1 = new Color(0, 0, 100);
+			c2 = Color.blue;
 		} else {
-			c = Color.red;
+			c1 = new Color(100, 0, 0);
+			c2 = Color.red;
 		}
-		Renderer.drawLine(x, y, x+dx, y+dy, 2, Entity.RENDER_PRIORITY_BULLET, c);
+		Renderer.drawLine(x, y, x+dx, y+dy, 2, Entity.RENDER_PRIORITY_BULLET, c1, c2);
 	}
 
 	@Override

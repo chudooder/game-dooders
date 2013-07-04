@@ -8,6 +8,7 @@ import chu.engine.Stage;
 public class TimeLapseStage extends Stage {
 
 	public Merc controlledMerc;
+	public int roundTimer;
 	
 	
 	//Placeholder extension of Stage. Use this instead of the default class.
@@ -15,9 +16,11 @@ public class TimeLapseStage extends Stage {
 	
 	public TimeLapseStage() {
 		super();
+		roundTimer = 0;
 	}
 	
 	public void beginStep() {
+		roundTimer++;
 		for(Entity e : entities) {
 			e.beginStep();
 		}
@@ -33,7 +36,7 @@ public class TimeLapseStage extends Stage {
 		processAddStack();
 		processRemoveStack();
 	}
-
+	
 	public void endStep() {
 		for(Entity e : entities) {
 			e.endStep();

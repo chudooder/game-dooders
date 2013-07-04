@@ -96,7 +96,7 @@ public class Merc extends Entity implements Collideable {
 	public void beginStep() {
 		weapon.update();
 
-		frame++;
+		frame = stage.roundTimer;
 		Map<Input, Object> inputs = controller.getInput(frame);
 		if (inputs == null) {
 			destroy();
@@ -375,10 +375,16 @@ public class Merc extends Entity implements Collideable {
 	
 	private void renderTimelineHUD() {
 		Camera cam = Renderer.getCamera();
+		int hx = cam.getScreenX()+200;
+		int hy = cam.getScreenY()+450;
+		int barlength = Math.min(238,238*frame/900);
+		Renderer.drawRectangle(hx+13,hy+5,hx+13+barlength,hy+10,
+				Entity.RENDER_PRIORITY_HUD,new Color(200,0,0));
 		Renderer.render(TEX_TIMELINE, 0, 0, 1, 1, 
-				cam.getScreenX()+200, cam.getScreenY()+450, 
-				cam.getScreenX()+456, cam.getScreenY()+466, 
+				hx, hy, 
+				hx+256, hy+16, 
 				Entity.RENDER_PRIORITY_HUD);
+
 	}
 
 	public float getAngle() {

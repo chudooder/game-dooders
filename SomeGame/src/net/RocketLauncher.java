@@ -127,7 +127,7 @@ public class RocketLauncher implements Weapon {
 					hy+47, 
 					5,
 					Entity.RENDER_PRIORITY_HUD,
-					new Color(238,238,238));
+					new Color(238,238,238), new Color(255,255,255));
 		}
 	}
 

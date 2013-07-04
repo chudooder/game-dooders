@@ -41,6 +41,7 @@ public abstract class Game {
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.1f);
 		glEnable(GL_TEXTURE_2D);
+		glShadeModel(GL_SMOOTH);
 		glClearDepth(1.0f);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glEnable(GL_BLEND);

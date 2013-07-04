@@ -158,7 +158,8 @@ public class Pistol implements Weapon {
 					hx + 61,
 					hy + 47,
 					(int) (hx + 61 + (1 - (double) (reloadTimer) / RELOAD_TIME) * 60),
-					hy + 47, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238));
+					hy + 47, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238),
+					new Color(255, 255, 255));
 		}
 
 	}

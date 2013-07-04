@@ -93,15 +93,15 @@ public class Renderer {
 	}
 	
 	public static void drawLine(float x0, float y0, float x, float y, 
-			float width, float depth, Color c) {
-		c.bind();
+			float width, float depth, Color c1, Color c2) {
 		glDisable(GL_TEXTURE_2D);
 		glLineWidth(width);
-		glColor4f(c.r, c.g, c.b, c.a);
 		
 		//glLoadIdentity();
 		glBegin(GL_LINES);
+			glColor4f(c1.r, c1.g, c1.b, c1.a);
 			glVertex3f(x0,y0,depth);
+			glColor4f(c2.r, c2.g, c2.b, c2.a);
 			glVertex3f(x,y,depth);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
