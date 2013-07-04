@@ -111,10 +111,12 @@ public class TimeLapse extends Game {
 		AudioPlayer.setCamera(playerCam);
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		
-		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
-		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));
-		currentStage.addEntity(new Block(currentStage, 32, 512, 480, 32));
-		currentStage.addEntity(new Block(currentStage, 512, 32, 32, 480));
+		currentStage.addEntity(new Block(currentStage, 64, 64, 64, 64));
+		
+//		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
+//		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));
+//		currentStage.addEntity(new Block(currentStage, 32, 512, 480, 32));
+//		currentStage.addEntity(new Block(currentStage, 512, 32, 32, 480));
 		
 		
 	}
@@ -140,7 +142,12 @@ public class TimeLapse extends Game {
 					currentStage.beginStep();
 					currentStage.onStep();
 					Renderer.getCamera().lookThrough();
-					Renderer.drawSquare(0, 0, 1024, 1.0f, new Color(0,0,50));
+					Renderer.drawRectangle(
+							Renderer.getCamera().getScreenX(), 
+							Renderer.getCamera().getScreenY(), 
+							Renderer.getCamera().getScreenX()+640,
+							Renderer.getCamera().getScreenY()+480,
+							1.0f, new Color(0,0,50));
 					currentStage.render();
 					currentStage.endStep();
 				}

@@ -23,6 +23,7 @@ import chu.engine.Hitbox;
 import chu.engine.LineHitbox;
 import chu.engine.RectangleHitbox;
 import chu.engine.anim.AudioPlayer;
+import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
 public class Merc extends Entity implements Collideable {
@@ -30,6 +31,8 @@ public class Merc extends Entity implements Collideable {
 	// Something
 
 	public static Texture TEX_TEXTURE;
+	public static Texture TEX_TIMELINE;
+	public static Texture TEX_HEALTHHUD;
 	public static Audio SFX_HURT;
 	private float angle; // IN RADIANS.
 	private Random random;
@@ -47,6 +50,10 @@ public class Merc extends Entity implements Collideable {
 		try {
 			TEX_TEXTURE = TextureLoader.getTexture("PNG",
 					ResourceLoader.getResourceAsStream("res/guy.png"));
+			TEX_TIMELINE = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/timelinehud.png"));
+			TEX_HEALTHHUD = TextureLoader.getTexture("PNG",
+					ResourceLoader.getResourceAsStream("res/healthhud.png"));
 			SFX_HURT = AudioLoader.getAudio("OGG",
 					ResourceLoader.getResourceAsStream("res/hurt.ogg"));
 		} catch (IOException e) {
@@ -146,6 +153,8 @@ public class Merc extends Entity implements Collideable {
 		sprite.renderRotated(x, y, renderDepth, angle);
 		if (controller instanceof NetworkController) {
 			weapon.renderHUD();
+			renderTimelineHUD();
+			renderHealthHUD();
 			if(renderShadows) renderShadows();
 		}
 
@@ -218,28 +227,27 @@ public class Merc extends Entity implements Collideable {
 		return best;
 	}
 
-	public void renderShadows() {
-		
+	private void renderShadows() {
 		//Start with the hard fov
 		float start = (float) (angle + Math.PI/4);
 		float innerRad = 32;
 		float outerRad = 600;
 		Color shadowColor = new Color(0, 0, 0);
 		
-		for(float i = start; i < start + Math.PI*1.4; i+= Math.PI/8) {
+		float stepSize = (float) (Math.PI/8);
+		for(float i = start; i < start + Math.PI*1.4; i+=stepSize) {
 			float x0 = (float)(centerX + innerRad*Math.cos(i));
 			float y0 = (float)(centerY + innerRad*Math.sin(i));
 			float x1 = (float)(centerX + outerRad*Math.cos(i));
 			float y1 = (float)(centerY + outerRad*Math.sin(i));
-			float x2 = (float)(centerX + innerRad*Math.cos(i+Math.PI/8));
-			float y2 = (float)(centerY + innerRad*Math.sin(i+Math.PI/8));
-			float x3 = (float)(centerX + outerRad*Math.cos(i+Math.PI/8));
-			float y3 = (float)(centerY + outerRad*Math.sin(i+Math.PI/8));
+			float x2 = (float)(centerX + innerRad*Math.cos(i+stepSize));
+			float y2 = (float)(centerY + innerRad*Math.sin(i+stepSize));
+			float x3 = (float)(centerX + outerRad*Math.cos(i+stepSize));
+			float y3 = (float)(centerY + outerRad*Math.sin(i+stepSize));
 			Renderer.drawTriangle(x1, y1, x2, y2, x3, y3, 
 					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
 			Renderer.drawTriangle(x0, y0, x1, y1, x2, y2, 
 					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
-			
 		}
 		
 		
@@ -346,7 +354,31 @@ public class Merc extends Entity implements Collideable {
 //				TimeLapse.guiFont.drawString(v.x, v.y, "" + i);
 			}
 		}
-
+	}
+	
+	private void renderHealthHUD() {
+		Camera cam = Renderer.getCamera();
+		int hx = cam.getScreenX();
+		int hy = cam.getScreenY()+416;
+		Renderer.render(TEX_HEALTHHUD, 0, 0, 1, 1, 
+				hx, hy, hx+64, hy+64, Entity.RENDER_PRIORITY_HUD);
+		int barheight = health*41/100;
+		Renderer.drawRectangle(hx+24, hy+52, hx+39, hy+52-barheight, 
+				Entity.RENDER_PRIORITY_HUD, new Color(238,238,238));
+		if(barheight >= 13) {
+			int subbar = Math.min(15, barheight-13);
+			Renderer.drawRectangle(hx+11, hy+39, hx+52, hy+39-subbar, 
+					Entity.RENDER_PRIORITY_HUD, new Color(238,238,238));
+		}
+		TimeLapse.guiFont.drawString(hx+60, hy+20, ""+health);
+	}
+	
+	private void renderTimelineHUD() {
+		Camera cam = Renderer.getCamera();
+		Renderer.render(TEX_TIMELINE, 0, 0, 1, 1, 
+				cam.getScreenX()+200, cam.getScreenY()+450, 
+				cam.getScreenX()+456, cam.getScreenY()+466, 
+				Entity.RENDER_PRIORITY_HUD);
 	}
 
 	public float getAngle() {

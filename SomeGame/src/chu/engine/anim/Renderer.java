@@ -74,16 +74,20 @@ public class Renderer {
 	}
 	
 	public static void drawSquare(float x, float y, float s, float depth, Color c) {
+		drawRectangle(x,y,x+s,y+s,depth,c);
+	}
+	
+	public static void drawRectangle(float x0, float y0, float x1, float y1, float depth, Color c) {
 		c.bind();
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(c.r, c.g, c.b, c.a);
 		
 		//glLoadIdentity();
 		glBegin(GL_QUADS);
-			glVertex3f(x, y, depth);
-			glVertex3f(x+s, y, depth);
-			glVertex3f(x+s, y+s, depth);
-			glVertex3f(x, y+s, depth);
+			glVertex3f(x0, y0, depth);
+			glVertex3f(x1, y0, depth);
+			glVertex3f(x1, y1, depth);
+			glVertex3f(x0, y1, depth);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
 	}
