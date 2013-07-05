@@ -24,7 +24,7 @@ public class Pistol implements Weapon {
 	private static Audio SFX_SHOOT;
 	private static Audio SFX_RELOAD;
 	// Adjusts how volume scales with distance.
-	private static final float SOUND_FADE_LENGTH = 200.0f;
+	private static final float SOUND_FADE_LENGTH = 100.0f;
 	private static final int FIRE_RATE = 10; // .166 seconds
 	private static final float SPREAD = 0.05f; // Approx. 3 degrees (cone)
 	private static final int RELOAD_TIME = 75; // 1.25 seconds
@@ -130,7 +130,7 @@ public class Pistol implements Weapon {
 			if (reserveAmmo > 0) {
 				reloadTimer = RELOAD_TIME;
 				AudioPlayer.playAudio(SFX_RELOAD, 1, 1, 
-						owner.centerX, owner.centerY, 0, SOUND_FADE_LENGTH);
+						owner.centerX, owner.centerY, 0, 10);
 				System.out.println("Pistol reloading...");
 			} else {
 				if (loadedAmmo == 0)

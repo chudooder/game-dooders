@@ -110,8 +110,9 @@ public class TimeLapse extends Game {
 		Renderer.setCamera(playerCam);
 		AudioPlayer.setCamera(playerCam);
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
-		
 		currentStage.addEntity(new Block(currentStage, 64, 64, 64, 64));
+		
+		currentStage.processAddStack();
 		
 //		currentStage.addEntity(new Block(currentStage, 32, 0, 480, 32));
 //		currentStage.addEntity(new Block(currentStage, 0, 32, 32, 480));

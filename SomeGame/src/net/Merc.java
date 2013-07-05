@@ -84,12 +84,9 @@ public class Merc extends Entity implements Collideable {
 		renderShadows = true;
 	}
 
-	public Merc(TimeLapseStage s, int x, int y, Controller c) {
-		this(s, x, y, c, Team.BLUE);
-	}
 
 	public Merc(TimeLapseStage s, int x, int y) {
-		this(s, x, y, new NetworkController());
+		this(s, x, y, new NetworkController(), Team.BLUE);
 	}
 
 	@Override
@@ -99,6 +96,7 @@ public class Merc extends Entity implements Collideable {
 		frame = stage.roundTimer;
 		Map<Input, Object> inputs = controller.getInput(frame);
 		if (inputs == null) {
+			System.out.println("lol "+frame);
 			destroy();
 			return;
 		}
@@ -377,7 +375,7 @@ public class Merc extends Entity implements Collideable {
 		Camera cam = Renderer.getCamera();
 		int hx = cam.getScreenX()+200;
 		int hy = cam.getScreenY()+450;
-		int barlength = Math.min(238,238*frame/900);
+		int barlength = Math.min(238,238*frame/TimeLapseStage.ROUND_LENGTH);
 		Renderer.drawRectangle(hx+13,hy+5,hx+13+barlength,hy+10,
 				Entity.RENDER_PRIORITY_HUD,new Color(200,0,0));
 		Renderer.render(TEX_TIMELINE, 0, 0, 1, 1, 
@@ -402,6 +400,10 @@ public class Merc extends Entity implements Collideable {
 	public Weapon getWeapon() {
 		return weapon;
 	}
+	
+	public Controller getController() {
+		return controller;
+	}
 
 	public void takeDamage(int damage) {
 		health -= damage;
@@ -421,37 +423,6 @@ public class Merc extends Entity implements Collideable {
 		}
 	}
 
-	class Angle implements Comparable<Angle> {
-		double angle;
-		RectangleHitbox parent;
-		boolean ignore;
-		int i;
-		int j;
-
-		public Angle(double a, RectangleHitbox wall, boolean b, int i, int j) {
-			angle = a;
-			parent = wall;
-			ignore = b;
-			this.i = i;
-			this.j = j;
-		}
-
-		@Override
-		public int compareTo(Angle arg0) {
-			return (int) (angle - arg0.angle);
-		}
-	}
-
-	class Wall {
-		int x0, y0, x1, y1;
-
-		public Wall(int a, int b, int c, int d) {
-			x0 = a;
-			y0 = b;
-			x1 = c;
-			y1 = d;
-		}
-	}
 
 	@Override
 	public void endStep() {

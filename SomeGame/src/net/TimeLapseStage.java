@@ -1,26 +1,35 @@
 package net;
 
+import java.util.ArrayList;
+
 import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.Hitbox;
 import chu.engine.Stage;
+import chu.engine.anim.AudioPlayer;
+import chu.engine.anim.Camera;
+import chu.engine.anim.Renderer;
 
 public class TimeLapseStage extends Stage {
 
 	public Merc controlledMerc;
+	public ArrayList<ControllerRecord> blueTeamRecord;
+	public ArrayList<ControllerRecord> redTeamRecord;
+	public int roundNumber;
 	public int roundTimer;
-	
+	public static final int ROUND_LENGTH = 900;
 	
 	//Placeholder extension of Stage. Use this instead of the default class.
 	//We might need to do stuff here, like game logic
 	
 	public TimeLapseStage() {
 		super();
+		blueTeamRecord = new ArrayList<>();
 		roundTimer = 0;
+		roundNumber = 0;
 	}
 	
 	public void beginStep() {
-		roundTimer++;
 		for(Entity e : entities) {
 			e.beginStep();
 		}
@@ -41,6 +50,10 @@ public class TimeLapseStage extends Stage {
 		for(Entity e : entities) {
 			e.endStep();
 		}
+		roundTimer++;
+		if(roundTimer >= ROUND_LENGTH) {
+			doEndOfRound();
+		}
 		processAddStack();
 		processRemoveStack();
 	}
@@ -59,6 +72,26 @@ public class TimeLapseStage extends Stage {
 				}
 			}
 		}
+	}
+	
+	private void doEndOfRound() {
+		blueTeamRecord.add((ControllerRecord) controlledMerc.getController().getRecord());
+		for(Entity e : entities) {
+			if(e instanceof Merc) {
+				e.destroy();
+			}
+		}
+		controlledMerc = new Merc(this, 320, 240, new NetworkController(), Team.BLUE);
+		Camera cam = new Camera(controlledMerc, 16, 16);
+		Renderer.setCamera(cam);
+		AudioPlayer.setCamera(cam);
+		addEntity(controlledMerc);
+		for(ControllerRecord record : blueTeamRecord) {
+			Merc m = new Merc(this, 320, 240, record, Team.BLUE);
+			addEntity(m);
+		}
+		roundNumber++;
+		roundTimer = 0;
 	}
 	
 	public boolean checkCollision(Entity e, Class<Block> c, int x, int y) {

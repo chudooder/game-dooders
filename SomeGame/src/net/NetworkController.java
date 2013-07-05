@@ -36,7 +36,7 @@ public class NetworkController implements Controller {
 		previousFrame.put(Input.RIGHT, false);
 		previousFrame.put(Input.RELOAD, false);
 		previousFrame.put(Input.FIRE, false);
-		previousFrame.put(Input.MOUSE, null);
+		previousFrame.put(Input.MOUSE, new int[] {25, 25});
 	}
 
 	@Override
@@ -127,6 +127,7 @@ public class NetworkController implements Controller {
 					input = previousFrame;
 				}
 			} else {
+				System.out.println("No message received: "+frame);
 				input = previousFrame;
 			}
 		}

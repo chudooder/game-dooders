@@ -8,11 +8,9 @@ public class Stage {
 	protected TreeSet<Entity> entities;
 	private Stack<Entity> addStack;
 	private Stack<Entity> removeStack;
-	private TreeSet<Entity> renderQueue;
 	
 	public Stage() {
 		entities = new TreeSet<>(new SortByUpdate());
-		renderQueue = new TreeSet<>(new SortByRender());
 		addStack = new Stack<>();
 		removeStack = new Stack<>();
 	}
@@ -94,7 +92,6 @@ public class Stage {
 		while(!addStack.isEmpty()) {
 			Entity e = addStack.pop();
 			entities.add(e);
-			renderQueue.add(e);
 		}
 	}
 	
@@ -106,7 +103,6 @@ public class Stage {
 		while(!removeStack.isEmpty()) {
 			Entity e = removeStack.pop();
 			entities.remove(e);
-			renderQueue.remove(e);
 			addStack.remove(e);		//Otherwise some weird shit happens and entities get stuck in limbo
 		}
 	}
