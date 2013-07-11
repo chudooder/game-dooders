@@ -16,6 +16,14 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import com.vividsolutions.jts.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+
+
 import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.Game;
@@ -40,7 +48,7 @@ public class Merc extends Entity implements Collideable {
 	private Controller controller;
 	public int centerX;
 	public int centerY;
-	private int frame;
+	private long frame;
 	private int health;
 	private int movespeed;
 	private boolean renderShadows;
@@ -153,7 +161,9 @@ public class Merc extends Entity implements Collideable {
 			weapon.renderHUD();
 			renderTimelineHUD();
 			renderHealthHUD();
-			if(renderShadows) renderShadows();
+//			VisibilityRenderer.addShadow(frame, getShadowGeometry());
+//			if(renderShadows) renderShadows();
+//			if(renderShadows) VisibilityRenderer.render(frame);
 		}
 
 
@@ -223,6 +233,41 @@ public class Merc extends Entity implements Collideable {
 		// Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 
 		return best;
+	}
+	
+	private Geometry getShadowGeometry() {
+		//Start with the hard fov
+		float start = (float) (angle + Math.PI/4);
+		float innerRad = 32;
+		float outerRad = 128;
+		Color shadowColor = new Color(0, 0, 0);
+		
+		float stepSize = (float) (Math.PI/8);
+		Coordinate[] coords = new Coordinate[25];
+		int a = 0;
+		int b = 23;
+		for(float i = start; i < start + Math.PI*1.4; i+=stepSize) {
+			float x0 = (float)(centerX + innerRad*Math.cos(i));
+			float y0 = (float)(centerY + innerRad*Math.sin(i));
+			float x1 = (float)(centerX + outerRad*Math.cos(i));
+			float y1 = (float)(centerY + outerRad*Math.sin(i));
+			coords[a] = new Coordinate(x0, y0);
+			coords[b] = new Coordinate(x1, y1);
+			a++;
+			b--;
+		}
+		coords[24] = coords[0];
+		
+		LinearRing shadow = new GeometryFactory().createLinearRing(coords);
+		Polygon poly = new Polygon(shadow, null, new GeometryFactory());
+//		Coordinate[] coo = poly.getCoordinates();
+//		for(int i=0; i<coo.length; i++) {
+//			Coordinate c = coo[i];
+//			Renderer.drawSquare((float)c.x, (float)c.y, 2, Entity.RENDER_PRIORITY_HUD, Color.red);
+//			TimeLapse.guiFont.drawString((float)c.x, (float)c.y, ""+i);
+//		}
+		
+		return poly;
 	}
 
 	private void renderShadows() {
@@ -375,7 +420,7 @@ public class Merc extends Entity implements Collideable {
 		Camera cam = Renderer.getCamera();
 		int hx = cam.getScreenX()+200;
 		int hy = cam.getScreenY()+450;
-		int barlength = Math.min(238,238*frame/TimeLapseStage.ROUND_LENGTH);
+		long barlength = Math.min(238,238*frame/TimeLapseStage.ROUND_LENGTH);
 		Renderer.drawRectangle(hx+13,hy+5,hx+13+barlength,hy+10,
 				Entity.RENDER_PRIORITY_HUD,new Color(200,0,0));
 		Renderer.render(TEX_TIMELINE, 0, 0, 1, 1, 

@@ -83,7 +83,7 @@ public class TimeLapse extends Game {
 	
 	public void init(int width, int height) {
 		super.init(width, height);
-		Display.setVSyncEnabled(true);
+//		Display.setVSyncEnabled(true);
 		client = new Client();
 		try{
 			cursorTex = TextureLoader.getTexture("PNG", 
