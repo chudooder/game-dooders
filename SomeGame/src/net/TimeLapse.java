@@ -50,7 +50,7 @@ public class TimeLapse extends Game {
 		Thread client = new Thread() {
 			public void run() {
 				TimeLapse game = new TimeLapse();
-				game.init(640,480);
+				game.init(640,480,"Time Lapse");
 				game.loop();
 			}
 		};
@@ -81,8 +81,8 @@ public class TimeLapse extends Game {
 		return b;
 	}
 	
-	public void init(int width, int height) {
-		super.init(width, height);
+	public void init(int width, int height, String name) {
+		super.init(width, height, name);
 //		Display.setVSyncEnabled(true);
 		client = new Client();
 		try{

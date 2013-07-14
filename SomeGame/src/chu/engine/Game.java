@@ -19,7 +19,7 @@ public abstract class Game {
 	protected long time;
 	protected static long timeDelta;
 	
-	public void init(int width, int height) {
+	public void init(int width, int height, String name) {
 		time = System.nanoTime();
 		
 		windowWidth = width;
@@ -28,6 +28,7 @@ public abstract class Game {
 		try {
 			Display.setDisplayMode(new DisplayMode(windowWidth, windowHeight));
 			Display.create();
+			Display.setTitle(name);
 			Keyboard.create();
 			Mouse.create();
 		} catch (LWJGLException e) {

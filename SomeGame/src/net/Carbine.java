@@ -16,7 +16,7 @@ import chu.engine.anim.AudioPlayer;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
-public class Pistol implements Weapon {
+public class Carbine implements Weapon {
 
 	private Merc owner;
 	private static Texture TEX_HUD;
@@ -25,13 +25,20 @@ public class Pistol implements Weapon {
 	private static Audio SFX_RELOAD;
 	// Adjusts how volume scales with distance.
 	private static final float SOUND_FADE_LENGTH = 100.0f;
-	private static final int FIRE_RATE = 10; // 6 shots per second
-	private static final float SPREAD = 0.05f; // Approx. 3 degrees (cone)
-	private static final int RELOAD_TIME = 75; // 1.25 seconds
-	private static final int MAG_SIZE = 12;
-	private static final int DAMAGE = 15;
+	private static final int FIRE_RATE = 6; // 10 shots per second
+	//Spread increases with continuous fire.
+	private static final float BASE_SPREAD = 0.02f;
+	private static final float MAX_SPREAD = 0.2f;
+	private static final float SPREAD_MULTIPLIER = 2f;
+	//Spread resets if player does not shoot for 12 frames.
+	private static final int SPREAD_RESET_TIME = 12;
+	private static final int RELOAD_TIME = 120; // 2 seconds
+	private static final int MAG_SIZE = 24;
+	private static final int DAMAGE = 7;
 	private int shotTimer;
 	private int reloadTimer;
+	private int spreadResetTimer;
+	private float spread;
 	private boolean hasAmmo;
 	private int reserveAmmo = MAG_SIZE * 3;
 	private int loadedAmmo = MAG_SIZE;
@@ -39,30 +46,29 @@ public class Pistol implements Weapon {
 	static {
 		try {
 			TEX_HUD = TextureLoader.getTexture("PNG", ResourceLoader
-					.getResourceAsStream("res/ammohud_pistol.png"));
-			TEX_HUD_BULLET = TextureLoader.getTexture("PNG", ResourceLoader
-					.getResourceAsStream("res/ammohud_pistol_bullet.png"));
+					.getResourceAsStream("res/ammohud_carbine.png"));
 			SFX_SHOOT = AudioLoader.getAudio("OGG",
 					ResourceLoader.getResourceAsStream("res/gunshot.ogg"));
 			SFX_RELOAD = AudioLoader.getAudio("OGG",
 					ResourceLoader.getResourceAsStream("res/gunreload.ogg"));
 		} catch (IOException e) {
-			System.err.println("Resource(s) not found for Pistol");
+			System.err.println("Resource(s) not found for Carbine");
 		}
 	}
 
-	public Pistol(Merc owner) {
+	public Carbine(Merc owner) {
 		this.owner = owner;
 		shotTimer = 0;
 		reloadTimer = 0;
+		spread = BASE_SPREAD;
 		hasAmmo = true;
 	}
 
 	@Override
 	public void fire() {
 		if (hasAmmo && shotTimer <= 0 && reloadTimer <= 0) {
-			float angle = owner.getAngle() + SPREAD
-					* owner.getRandom().nextFloat() - (SPREAD / 2);
+			float angle = owner.getAngle() + spread
+					* owner.getRandom().nextFloat() - (spread / 2);
 
 			ArrayList<RectangleHitbox> entities = new ArrayList<>();
 			for (Entity e : owner.stage.getAllEntities()) {
@@ -80,8 +86,11 @@ public class Pistol implements Weapon {
 
 			shotTimer = FIRE_RATE;
 			loadedAmmo--;
-			System.out.println("Pistol [" + loadedAmmo + "/" + reserveAmmo
-					+ "]");
+			System.out.println("Carbine [" + loadedAmmo + "/" + reserveAmmo
+					+ "]" + spread);
+			if(spread < MAX_SPREAD) spread *= SPREAD_MULTIPLIER;
+			if(spread > MAX_SPREAD) spread = MAX_SPREAD;
+			spreadResetTimer = SPREAD_RESET_TIME;
 			if (loadedAmmo == 0) {
 				reload();
 			}
@@ -103,6 +112,11 @@ public class Pistol implements Weapon {
 
 	@Override
 	public void update() {
+		if (spreadResetTimer > -1)
+			spreadResetTimer--;
+		if (spreadResetTimer == 0) {
+			spread = BASE_SPREAD;
+		}
 		if (shotTimer > -1)
 			shotTimer--;
 		if (reloadTimer > -1)
@@ -111,7 +125,7 @@ public class Pistol implements Weapon {
 			int amt = Math.min(MAG_SIZE - loadedAmmo, reserveAmmo);
 			loadedAmmo += amt;
 			reserveAmmo -= amt;
-			System.out.println("Pistol done reloading.");
+			System.out.println("Carbine done reloading.");
 		}
 	}
 
@@ -132,11 +146,11 @@ public class Pistol implements Weapon {
 				reloadTimer = RELOAD_TIME;
 				AudioPlayer.playAudio(SFX_RELOAD, 1, 1, 
 						owner.centerX, owner.centerY, 0, 10);
-				System.out.println("Pistol reloading...");
+				System.out.println("Carbine reloading...");
 			} else {
 				if (loadedAmmo == 0)
 					hasAmmo = false;
-				System.out.println("Pistol out of ammo!");
+				System.out.println("Carbine out of ammo!");
 			}
 		}
 	}
@@ -144,22 +158,26 @@ public class Pistol implements Weapon {
 	@Override
 	public void renderHUD() {
 		Camera cam = Renderer.getCamera();
-		int hx = cam.getScreenX() + 512;
+		int hx = cam.getScreenX() + 500;
 		int hy = cam.getScreenY() + 416;
 		Renderer.render(TEX_HUD, 0, 0, 1, 1, hx, hy, hx + 128, hy + 64,
 				Entity.RENDER_PRIORITY_HUD);
 		for (int i = 0; i < loadedAmmo; i++) {
-			Renderer.render(TEX_HUD_BULLET, 0, 0, 1, 1, hx + 57 + (i % 6) * 7,
-					hy + 16 + (i / 6) * 12, hx + 65 + (i % 6) * 7, hy + 32
-							+ (i / 6) * 12, Entity.RENDER_PRIORITY_HUD);
+			Renderer.drawRectangle(
+					hx + 87 + (i % 8) * 3, 
+					hy + 20 + (i / 8) * 6, 
+					hx + 89 + (i % 8) * 3, 
+					hy + 25	+ (i / 8) * 6, 
+					Entity.RENDER_PRIORITY_HUD,
+					new Color(238,238,238));
 		}
-		TimeLapse.guiFont.drawString(hx + 100, hy + 19, "" + reserveAmmo);
+		TimeLapse.guiFont.drawString(hx + 115, hy + 16, "" + reserveAmmo);
 		if (reloadTimer > 0) {
 			Renderer.drawLine(
-					hx + 61,
-					hy + 47,
-					(int) (hx + 61 + (1 - (double) (reloadTimer) / RELOAD_TIME) * 60),
-					hy + 47, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238),
+					hx + 75,
+					hy + 43,
+					(int) (hx + 75 + (1 - (double) (reloadTimer) / RELOAD_TIME) * 50),
+					hy + 43, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238),
 					new Color(238, 238, 238));
 		}
 

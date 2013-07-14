@@ -83,7 +83,7 @@ public class Merc extends Entity implements Collideable {
 		} else {
 			random.setSeed(c.getSeed());
 		}
-		weapon = new Pistol(this);
+		weapon = new Carbine(this);
 		controller = c;
 		c.set(this);
 		health = 100;
