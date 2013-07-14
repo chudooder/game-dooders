@@ -81,13 +81,15 @@ public class TimeLapseStage extends Stage {
 				e.destroy();
 			}
 		}
-		controlledMerc = new Merc(this, 320, 240, new NetworkController(), Team.BLUE);
+		int x = 320 + (int)(Math.random()*128-64);
+		int y = 240 + (int)(Math.random()*128-64);
+		controlledMerc = new Merc(this, x, y, new NetworkController(), Team.BLUE);
 		Camera cam = new Camera(controlledMerc, 16, 16);
 		Renderer.setCamera(cam);
 		AudioPlayer.setCamera(cam);
 		addEntity(controlledMerc);
 		for(ControllerRecord record : blueTeamRecord) {
-			Merc m = new Merc(this, 320, 240, record, Team.BLUE);
+			Merc m = new Merc(this, record.getStartX(), record.getStartY(), record, Team.BLUE);
 			addEntity(m);
 		}
 		roundNumber++;

@@ -16,6 +16,9 @@ public class NetworkController implements Controller {
 	private Map<Long, Map<Input, Object>> record;
 	private HashMap<Input, Object> previousFrame;
 	private long seed;
+	private Weapon weapon;
+	private int startX;
+	private int startY;
 
 	public NetworkController() {
 		this(new HashMap<Input, Integer>());
@@ -137,7 +140,7 @@ public class NetworkController implements Controller {
 
 	@Override
 	public Controller getRecord() {
-		return new ControllerRecord(record, seed);
+		return new ControllerRecord(record, seed, weapon, startX, startY);
 	}
 
 	@Override
@@ -153,6 +156,24 @@ public class NetworkController implements Controller {
 	@Override
 	public void set(Merc m) {
 		relative = m;
+		weapon = m.getWeapon();
+		startX = m.x;
+		startY = m.y;
+	}
+
+	@Override
+	public Weapon getWeapon() {
+		return weapon;
+	}
+	
+	@Override
+	public int getStartX() {
+		return startX;
+	}
+	
+	@Override
+	public int getStartY() {
+		return startY;
 	}
 
 }
