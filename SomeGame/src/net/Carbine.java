@@ -175,12 +175,17 @@ public class Carbine implements Weapon {
 		if (reloadTimer > 0) {
 			Renderer.drawLine(
 					hx + 75,
-					hy + 43,
+					hy + 42,
 					(int) (hx + 75 + (1 - (double) (reloadTimer) / RELOAD_TIME) * 50),
-					hy + 43, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238),
+					hy + 42, 5, Entity.RENDER_PRIORITY_HUD, new Color(238, 238, 238),
 					new Color(238, 238, 238));
 		}
 
+	}
+
+	@Override
+	public Weapon createNew(Merc newOwner) {
+		return new Carbine(newOwner);
 	}
 
 }

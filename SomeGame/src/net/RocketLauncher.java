@@ -131,4 +131,9 @@ public class RocketLauncher implements Weapon {
 		}
 	}
 
+	@Override
+	public Weapon createNew(Merc newOwner) {
+		return new RocketLauncher(newOwner);
+	}
+
 }

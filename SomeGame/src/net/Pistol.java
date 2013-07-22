@@ -165,4 +165,9 @@ public class Pistol implements Weapon {
 
 	}
 
+	@Override
+	public Weapon createNew(Merc newOwner) {
+		return new Pistol(newOwner);
+	}
+
 }

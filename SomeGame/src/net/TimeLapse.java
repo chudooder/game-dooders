@@ -42,11 +42,13 @@ public class TimeLapse extends Game {
 		System.out.println("F2: Stop recording");
 		System.out.println("F3: Play back recording");
 		System.out.println("F4: Clear recording");
+		
 		Thread server = new Thread() {
 			public void run() {
 				new Server(5678);
 			}
 		};
+		
 		Thread client = new Thread() {
 			public void run() {
 				TimeLapse game = new TimeLapse();

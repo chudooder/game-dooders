@@ -86,12 +86,12 @@ public class Merc extends Entity implements Collideable {
 		controller = c;
 		if(controller instanceof ControllerRecord) {
 			Weapon w = controller.getWeapon();
-			if(w instanceof Carbine) weapon = new Carbine(this);
-			else if(w instanceof Pistol) weapon = new Pistol(this);
+			weapon = w.createNew(this);
 		} else {
-			int wep = (int)(2*Math.random());
+			int wep = (int)(3*Math.random());
 			if(wep == 0) weapon = new Carbine(this);
 			else if(wep == 1) weapon = new Pistol(this);
+			else if(wep == 2) weapon = new RocketLauncher(this);
 		}
 		c.set(this);
 		health = 100;
@@ -102,7 +102,7 @@ public class Merc extends Entity implements Collideable {
 
 
 	public Merc(TimeLapseStage s, int x, int y) {
-		this(s, x, y, new NetworkController(), Team.BLUE);
+		this(s, x, y, new NetworkController(true), Team.BLUE);
 	}
 
 	@Override
@@ -112,7 +112,6 @@ public class Merc extends Entity implements Collideable {
 		frame = stage.roundTimer;
 		Map<Input, Object> inputs = controller.getInput(frame);
 		if (inputs == null) {
-			System.out.println("lol "+frame);
 			destroy();
 			return;
 		}
@@ -150,6 +149,10 @@ public class Merc extends Entity implements Collideable {
 			}
 			if (key == Keyboard.KEY_F1 && keys.get(key)) {
 				renderShadows = !renderShadows;
+			}
+			if (key == Keyboard.KEY_F2 && keys.get(key)) {
+				TimeLapse.getClient().sendMessage(
+						new byte[] {0, 2});
 			}
 		}
 

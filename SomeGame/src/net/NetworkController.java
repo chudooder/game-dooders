@@ -15,13 +15,15 @@ public class NetworkController implements Controller {
 	private Entity relative; // getMousePos() returns position relative to this
 	private Map<Long, Map<Input, Object>> record;
 	private HashMap<Input, Object> previousFrame;
+	private boolean controllable;
 	private long seed;
 	private Weapon weapon;
 	private int startX;
 	private int startY;
 
-	public NetworkController() {
-		this(new HashMap<Input, Integer>());
+	public NetworkController(boolean c) {
+		this(new HashMap<Input, Integer>(), c);
+		controllable = c;
 		controls.put(Input.UP, Keyboard.KEY_W);
 		controls.put(Input.DOWN, Keyboard.KEY_S);
 		controls.put(Input.LEFT, Keyboard.KEY_A);
@@ -29,7 +31,8 @@ public class NetworkController implements Controller {
 		controls.put(Input.RELOAD, Keyboard.KEY_R);
 	}
 
-	public NetworkController(Map<Input, Integer> controls) {
+	public NetworkController(Map<Input, Integer> controls, boolean c) {
+		this.controllable = c;
 		this.controls = new HashMap<>(controls);
 		this.record = new HashMap<>();
 		this.previousFrame = new HashMap<>();
@@ -46,8 +49,8 @@ public class NetworkController implements Controller {
 	public Map<Input, Object> getInput(long frame) {
 		// Serialize input and send it to the server
 		HashMap<Input, Object> input = new HashMap<>();
-		{
-			byte[] msg = new byte[12];
+		if(controllable && relative.stage.roundStarted){
+			byte[] msg = new byte[14];
 			msg[0] = 0;
 			msg[1] = 0;
 			int index = 2;
@@ -96,10 +99,12 @@ public class NetworkController implements Controller {
 		// Get server response
 		{
 			ArrayList<byte[]> messages = TimeLapse.getServerMessages();
-			if (messages.size() > 0) {
-				byte[] line = messages.get(0);
+			boolean gotMessage = false;
+			for(int k=0; k<messages.size(); k++) {
+				byte[] line = messages.get(k);
 				if (line[1] == 0) {
 					int index = 2;
+					gotMessage = true;
 					for (Input i : Input.values()) {
 						if (controls.containsKey(i)) {
 							input.put(i, line[index] == 1);
@@ -126,11 +131,10 @@ public class NetworkController implements Controller {
 						input.put(Input.MOUSE, null);
 					}
 					previousFrame = input;
-				} else {
-					input = previousFrame;
 				}
-			} else {
-				System.out.println("No message received: "+frame);
+			}
+			
+			if(!gotMessage) {
 				input = previousFrame;
 			}
 		}

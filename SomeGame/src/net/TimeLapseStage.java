@@ -1,6 +1,9 @@
 package net;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.lwjgl.input.Keyboard;
 
 import chu.engine.Collideable;
 import chu.engine.Entity;
@@ -17,6 +20,7 @@ public class TimeLapseStage extends Stage {
 	public ArrayList<ControllerRecord> redTeamRecord;
 	public int roundNumber;
 	public int roundTimer;
+	public boolean roundStarted;
 	public static final int ROUND_LENGTH = 900;
 	
 	//Placeholder extension of Stage. Use this instead of the default class.
@@ -27,9 +31,25 @@ public class TimeLapseStage extends Stage {
 		blueTeamRecord = new ArrayList<>();
 		roundTimer = 0;
 		roundNumber = 0;
+		roundStarted = false;
 	}
 	
 	public void beginStep() {
+		HashMap<Integer, Boolean> keys = TimeLapse.getKeys();
+		for(int key : keys.keySet()) {
+			if(key == Keyboard.KEY_F3) { 
+				TimeLapse.getClient().sendMessage(new byte[] {0, 3});
+				System.out.println("asdf");
+			}
+		}
+		
+		ArrayList<byte[]> messages = TimeLapse.getServerMessages();
+		for(byte[] line : messages) {
+			if(line[1] == 3) { 		//START
+				roundStarted = true;
+			}
+		}
+		
 		for(Entity e : entities) {
 			e.beginStep();
 		}
@@ -50,10 +70,21 @@ public class TimeLapseStage extends Stage {
 		for(Entity e : entities) {
 			e.endStep();
 		}
-		roundTimer++;
-		if(roundTimer >= ROUND_LENGTH) {
-			doEndOfRound();
+		if(roundStarted) {
+			roundTimer++;
+			if(roundTimer >= ROUND_LENGTH) {
+				doEndOfRound();
+			}
 		}
+		ArrayList<byte[]> messages = TimeLapse.getServerMessages();
+		for(byte[] line : messages) {
+			if(line[0] == 2) {
+				roundTimer = 0;
+				roundNumber = 0;
+				System.out.println("asdfasdfa");
+			}
+		}
+		
 		processAddStack();
 		processRemoveStack();
 	}
@@ -83,7 +114,7 @@ public class TimeLapseStage extends Stage {
 		}
 		int x = 320 + (int)(Math.random()*128-64);
 		int y = 240 + (int)(Math.random()*128-64);
-		controlledMerc = new Merc(this, x, y, new NetworkController(), Team.BLUE);
+		controlledMerc = new Merc(this, x, y, new NetworkController(true), Team.BLUE);
 		Camera cam = new Camera(controlledMerc, 16, 16);
 		Renderer.setCamera(cam);
 		AudioPlayer.setCamera(cam);

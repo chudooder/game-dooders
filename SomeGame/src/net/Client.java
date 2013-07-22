@@ -50,12 +50,6 @@ public class Client {
 	}
 	
 	private void processInput(byte[] line) {
-		// Place messages in a backlog until the game retrieves them
-//		System.out.print("CLIENT RECIEVE: ");
-//		for(byte c : line) {
-//			System.out.print(c + " ");
-//		}
-//		System.out.println();
 		if(line.length > 0)
 			messages.add(line);
 	}
