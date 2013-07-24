@@ -42,7 +42,7 @@ public class NetworkController implements Controller {
 		previousFrame.put(Input.RIGHT, false);
 		previousFrame.put(Input.RELOAD, false);
 		previousFrame.put(Input.FIRE, false);
-		previousFrame.put(Input.MOUSE, new int[] {25, 25});
+		previousFrame.put(Input.MOUSE, new int[] {0, -10});
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class Rocket extends Entity implements Collideable {
 		super(stage, x, y);
 		sprite.addAnimation("LOOP", texture);
 		hitbox = new RectangleHitbox(this, 0, 0, 32, 16);
-		renderDepth = Entity.RENDER_PRIORITY_BULLET;
+		renderDepth = RENDER_PRIORITY_BULLET;
 		this.angle = angle;
 		xx = x;
 		yy = y;

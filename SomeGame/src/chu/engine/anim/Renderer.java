@@ -50,11 +50,12 @@ public class Renderer {
 		
 		glPushMatrix();
 		glTranslatef(x0, y0, depth);
+		glTranslatef(transform.translateX, transform.translateY, 0);
 		glScalef(transform.scaleX, transform.scaleY, 0);
-		glTranslatef(-x0, -y0, -depth);
-		glTranslatef((x0+x1)/2, (y0+y1)/2, depth);
+		glTranslatef(-x0 + (x0+x1)/2, -y0 + (y0+y1)/2, 0);
 		glRotatef(transform.rotation/(float)Math.PI*180, 0, 0, 1);
 		glTranslatef(-(x0+x1)/2,-(y0+y1)/2, -depth);
+
 		
 		
 	    // draw quad

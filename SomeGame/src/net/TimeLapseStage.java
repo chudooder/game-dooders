@@ -21,6 +21,9 @@ public class TimeLapseStage extends Stage {
 	public int roundNumber;
 	public int roundTimer;
 	public boolean roundStarted;
+	public int preRoundTimer = 0;
+	public boolean preRoundStarted = false;
+	public static final int PRE_ROUND_TIMER = 180;
 	public static final int ROUND_LENGTH = 900;
 	
 	//Placeholder extension of Stage. Use this instead of the default class.
@@ -76,6 +79,12 @@ public class TimeLapseStage extends Stage {
 				doEndOfRound();
 			}
 		}
+		if(preRoundStarted) {
+			preRoundTimer++;
+			if(preRoundTimer >= PRE_ROUND_TIMER) {
+				roundStarted = true;
+			}
+		}
 		ArrayList<byte[]> messages = TimeLapse.getServerMessages();
 		for(byte[] line : messages) {
 			if(line[0] == 2) {
@@ -105,6 +114,24 @@ public class TimeLapseStage extends Stage {
 		}
 	}
 	
+	public void startRound(Weapon choice) {
+		int x = 320 + (int)(Math.random()*128-64);
+		int y = 240 + (int)(Math.random()*128-64);
+		controlledMerc = new Merc(this, x, y, new NetworkController(true), 
+				Team.BLUE, choice);
+		choice.setOwner(controlledMerc);
+		Camera cam = new Camera(controlledMerc, 16, 16);
+		Renderer.setCamera(cam);
+		AudioPlayer.setCamera(cam);
+		addEntity(controlledMerc);
+		for(ControllerRecord record : blueTeamRecord) {
+			Merc m = new Merc(this, record.getStartX(), 
+					record.getStartY(), record, Team.BLUE, record.getWeapon());
+			addEntity(m);
+		}
+		preRoundStarted = true;
+	}
+	
 	private void doEndOfRound() {
 		blueTeamRecord.add((ControllerRecord) controlledMerc.getController().getRecord());
 		for(Entity e : entities) {
@@ -112,19 +139,13 @@ public class TimeLapseStage extends Stage {
 				e.destroy();
 			}
 		}
-		int x = 320 + (int)(Math.random()*128-64);
-		int y = 240 + (int)(Math.random()*128-64);
-		controlledMerc = new Merc(this, x, y, new NetworkController(true), Team.BLUE);
-		Camera cam = new Camera(controlledMerc, 16, 16);
-		Renderer.setCamera(cam);
-		AudioPlayer.setCamera(cam);
-		addEntity(controlledMerc);
-		for(ControllerRecord record : blueTeamRecord) {
-			Merc m = new Merc(this, record.getStartX(), record.getStartY(), record, Team.BLUE);
-			addEntity(m);
-		}
+
 		roundNumber++;
 		roundTimer = 0;
+		preRoundTimer = 0;
+		roundStarted = false;
+		preRoundStarted = false;
+		addEntity(new WeaponSelectMenu(this, 0, 0));
 	}
 	
 	public boolean checkCollision(Entity e, Class<Block> c, int x, int y) {

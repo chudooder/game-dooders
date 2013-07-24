@@ -43,6 +43,7 @@ public class Server {
 	ServerSocket serverSocket;
 	boolean closeRequested = false;
 	volatile ArrayList<ServerListener> clients; 
+	int counter = 0;
 	
 	public static void main(String[] args) {
 		new Server(5678);
@@ -59,6 +60,7 @@ public class Server {
 				ServerListener listener = new ServerListener(this, connectSocket);
 				clients.add(listener);
 				listener.start();
+				counter++;
 			}
 			serverSocket.close();
 		} catch (IOException e) {
@@ -71,5 +73,9 @@ public class Server {
 		for(ServerListener out : clients) {
 			out.sendMessage(line);
 		}
+	}
+	
+	public int getCount() {
+		return counter;
 	}
 }

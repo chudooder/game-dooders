@@ -50,7 +50,7 @@ public class Bullet extends Entity {
 			c1 = new Color(100, 0, 0);
 			c2 = Color.red;
 		}
-		Renderer.drawLine(x, y, x+dx, y+dy, 2, Entity.RENDER_PRIORITY_BULLET, c1, c2);
+		Renderer.drawLine(x, y, x+dx, y+dy, 2, RENDER_PRIORITY_BULLET, c1, c2);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ import chu.engine.anim.AudioPlayer;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
 
-public class Carbine implements Weapon {
+public class AssaultRifle implements Weapon {
 
 	private Merc owner;
 	private static Texture TEX_HUD;
@@ -46,17 +46,17 @@ public class Carbine implements Weapon {
 	static {
 		try {
 			TEX_HUD = TextureLoader.getTexture("PNG", ResourceLoader
-					.getResourceAsStream("res/ammohud_carbine.png"));
+					.getResourceAsStream("res/hud/ammohud_assaultrifle.png"));
 			SFX_SHOOT = AudioLoader.getAudio("OGG",
-					ResourceLoader.getResourceAsStream("res/gunshot.ogg"));
+					ResourceLoader.getResourceAsStream("res/sound/gunshot_assaultrifle.ogg"));
 			SFX_RELOAD = AudioLoader.getAudio("OGG",
-					ResourceLoader.getResourceAsStream("res/gunreload.ogg"));
+					ResourceLoader.getResourceAsStream("res/sound/gunreload.ogg"));
 		} catch (IOException e) {
-			System.err.println("Resource(s) not found for Carbine");
+			System.err.println("Resource(s) not found for Assault Rifle");
 		}
 	}
 
-	public Carbine(Merc owner) {
+	public AssaultRifle(Merc owner) {
 		this.owner = owner;
 		shotTimer = 0;
 		reloadTimer = 0;
@@ -86,7 +86,7 @@ public class Carbine implements Weapon {
 
 			shotTimer = FIRE_RATE;
 			loadedAmmo--;
-			System.out.println("Carbine [" + loadedAmmo + "/" + reserveAmmo
+			System.out.println("Assault Rifle [" + loadedAmmo + "/" + reserveAmmo
 					+ "]" + spread);
 			if(spread < MAX_SPREAD) spread *= SPREAD_MULTIPLIER;
 			if(spread > MAX_SPREAD) spread = MAX_SPREAD;
@@ -111,6 +111,11 @@ public class Carbine implements Weapon {
 	}
 
 	@Override
+	public void setOwner(Merc m) {
+		owner = m;
+	}
+	
+	@Override
 	public void update() {
 		if (spreadResetTimer > -1)
 			spreadResetTimer--;
@@ -125,7 +130,7 @@ public class Carbine implements Weapon {
 			int amt = Math.min(MAG_SIZE - loadedAmmo, reserveAmmo);
 			loadedAmmo += amt;
 			reserveAmmo -= amt;
-			System.out.println("Carbine done reloading.");
+			System.out.println("Assault Rifle done reloading.");
 		}
 	}
 
@@ -146,17 +151,17 @@ public class Carbine implements Weapon {
 				reloadTimer = RELOAD_TIME;
 				AudioPlayer.playAudio(SFX_RELOAD, 1, 1, 
 						owner.centerX, owner.centerY, 0, 10);
-				System.out.println("Carbine reloading...");
+				System.out.println("Assault Rifle reloading...");
 			} else {
 				if (loadedAmmo == 0)
 					hasAmmo = false;
-				System.out.println("Carbine out of ammo!");
+				System.out.println("Assault Rifle out of ammo!");
 			}
 		}
 	}
 
 	@Override
-	public void renderHUD() {
+	public void render() {
 		Camera cam = Renderer.getCamera();
 		int hx = cam.getScreenX() + 500;
 		int hy = cam.getScreenY() + 416;
@@ -185,7 +190,7 @@ public class Carbine implements Weapon {
 
 	@Override
 	public Weapon createNew(Merc newOwner) {
-		return new Carbine(newOwner);
+		return new AssaultRifle(newOwner);
 	}
 
 }

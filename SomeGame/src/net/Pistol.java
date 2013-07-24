@@ -15,12 +15,14 @@ import chu.engine.RectangleHitbox;
 import chu.engine.anim.AudioPlayer;
 import chu.engine.anim.Camera;
 import chu.engine.anim.Renderer;
+import chu.engine.anim.Transform;
 
 public class Pistol implements Weapon {
 
 	private Merc owner;
 	private static Texture TEX_HUD;
 	private static Texture TEX_HUD_BULLET;
+	private static Texture TEX_MUZZLE_FLASH;
 	private static Audio SFX_SHOOT;
 	private static Audio SFX_RELOAD;
 	// Adjusts how volume scales with distance.
@@ -39,13 +41,15 @@ public class Pistol implements Weapon {
 	static {
 		try {
 			TEX_HUD = TextureLoader.getTexture("PNG", ResourceLoader
-					.getResourceAsStream("res/ammohud_pistol.png"));
+					.getResourceAsStream("res/hud/ammohud_pistol.png"));
 			TEX_HUD_BULLET = TextureLoader.getTexture("PNG", ResourceLoader
-					.getResourceAsStream("res/ammohud_pistol_bullet.png"));
+					.getResourceAsStream("res/hud/ammohud_pistol_bullet.png"));
+			TEX_MUZZLE_FLASH = TextureLoader.getTexture("PNG", ResourceLoader
+					.getResourceAsStream("res/muzzle_flash.png"));
 			SFX_SHOOT = AudioLoader.getAudio("OGG",
-					ResourceLoader.getResourceAsStream("res/gunshot.ogg"));
+					ResourceLoader.getResourceAsStream("res/sound/gunshot_pistol.ogg"));
 			SFX_RELOAD = AudioLoader.getAudio("OGG",
-					ResourceLoader.getResourceAsStream("res/gunreload.ogg"));
+					ResourceLoader.getResourceAsStream("res/sound/gunreload.ogg"));
 		} catch (IOException e) {
 			System.err.println("Resource(s) not found for Pistol");
 		}
@@ -102,6 +106,11 @@ public class Pistol implements Weapon {
 	}
 
 	@Override
+	public void setOwner(Merc m) {
+		owner = m;
+	}
+	
+	@Override
 	public void update() {
 		if (shotTimer > -1)
 			shotTimer--;
@@ -142,7 +151,18 @@ public class Pistol implements Weapon {
 	}
 
 	@Override
-	public void renderHUD() {
+	public void render() {
+		if(shotTimer > FIRE_RATE - 3) {
+			Transform t = new Transform();
+			t.setRotation(owner.getAngle());
+			t.setTranslation((float)(10*Math.cos(owner.getAngle())), 
+					(float)(10*Math.sin(owner.getAngle())));
+			Renderer.renderTransformed(TEX_MUZZLE_FLASH, 0, 0, 1, 1, 
+					owner.x, owner.y, owner.x+32, owner.y+32, 
+					Entity.RENDER_PRIORITY_BULLET, t);
+		}
+		
+		
 		Camera cam = Renderer.getCamera();
 		int hx = cam.getScreenX() + 512;
 		int hy = cam.getScreenY() + 416;

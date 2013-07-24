@@ -14,6 +14,7 @@ public class Client {
 	InputStream in;
 	boolean open = true;
 	public volatile ArrayList<byte[]> messages;
+	private Team team;
 	
 	public Client() {
 		messages = new ArrayList<>();
@@ -75,6 +76,10 @@ public class Client {
 		} catch (IOException e) {
 			System.err.println("CLIENT Unable to send message!");
 		}
+	}
+	
+	public Team getTeam() {
+		return team;
 	}
 
 }

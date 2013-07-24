@@ -105,14 +105,9 @@ public class TimeLapse extends Game {
 				new Font("Open Sans", Font.BOLD, 17), false);
 		
 		currentStage = new TimeLapseStage();
-		Merc player = new Merc(currentStage, 320, 240);
-		currentStage.addEntity(player);
-		currentStage.controlledMerc = player;
-		Camera playerCam = new Camera(player, 16, 16);
-		Renderer.setCamera(playerCam);
-		AudioPlayer.setCamera(playerCam);
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		currentStage.addEntity(new Block(currentStage, 64, 64, 64, 64));
+		currentStage.addEntity(new WeaponSelectMenu(currentStage, 0, 0));
 		
 		currentStage.processAddStack();
 		

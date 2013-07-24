@@ -26,6 +26,8 @@ public interface Weapon {
 	 * @return owner of this weapon.
 	 */
 	public Merc getOwner();
+	
+	public void setOwner(Merc m);
 	/**
 	 * Executed when RELOAD is pressed. Reloads the
 	 * weapon. Bullets are not wasted; only enough ammo
@@ -35,7 +37,7 @@ public interface Weapon {
 	/**
 	 * Renders this weapon's HUD.
 	 */
-	public void renderHUD();
+	public void render();
 	/**
 	 * Creates a fresh version of this weapon.
 	 */
