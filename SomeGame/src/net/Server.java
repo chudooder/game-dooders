@@ -43,7 +43,7 @@ public class Server {
 	ServerSocket serverSocket;
 	boolean closeRequested = false;
 	volatile ArrayList<ServerListener> clients; 
-	int counter = 0;
+	byte counter = 0;
 	
 	public static void main(String[] args) {
 		new Server(5678);
@@ -75,7 +75,7 @@ public class Server {
 		}
 	}
 	
-	public int getCount() {
+	public byte getCount() {
 		return counter;
 	}
 }

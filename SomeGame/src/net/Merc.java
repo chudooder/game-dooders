@@ -264,7 +264,6 @@ public class Merc extends Entity implements Collideable {
 				best = dist;
 
 		}
-		// Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 
 		return best;
 	}

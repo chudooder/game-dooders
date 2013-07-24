@@ -20,6 +20,7 @@ public class NetworkController implements Controller {
 	private Weapon weapon;
 	private int startX;
 	private int startY;
+	private Team team;
 
 	public NetworkController(boolean c) {
 		this(new HashMap<Input, Integer>(), c);
@@ -144,7 +145,7 @@ public class NetworkController implements Controller {
 
 	@Override
 	public Controller getRecord() {
-		return new ControllerRecord(record, seed, weapon, startX, startY);
+		return new ControllerRecord(record, seed, weapon, startX, startY, team);
 	}
 
 	@Override
@@ -163,6 +164,7 @@ public class NetworkController implements Controller {
 		weapon = m.getWeapon();
 		startX = m.x;
 		startY = m.y;
+		team = m.team;
 	}
 
 	@Override
@@ -178,6 +180,11 @@ public class NetworkController implements Controller {
 	@Override
 	public int getStartY() {
 		return startY;
+	}
+
+	@Override
+	public Team getTeam() {
+		return team;
 	}
 
 }

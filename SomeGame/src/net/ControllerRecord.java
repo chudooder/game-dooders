@@ -8,13 +8,15 @@ public class ControllerRecord implements Controller {
 	private int startX;
 	private int startY;
 	private Weapon weapon;
+	private Team team;
 	public ControllerRecord(Map<Long,Map<Input,Object>> record, 
-			long seed, Weapon weapon, int startX, int startY){
+			long seed, Weapon weapon, int startX, int startY, Team team){
 		this.record = new HashMap<>(record);
 		this.seed = seed;
 		this.weapon = weapon;
 		this.startX = startX;
 		this.startY = startY;
+		this.team = team;
 	}
 	@Override
 	public Map<Input, Object> getInput(long frame) {
@@ -23,7 +25,7 @@ public class ControllerRecord implements Controller {
 
 	@Override
 	public Controller getRecord() {
-		return new ControllerRecord(record, seed, weapon, startX, startY);
+		return new ControllerRecord(record, seed, weapon, startX, startY, team);
 	}
 	@Override
 	public void set(Merc m) {
@@ -48,6 +50,10 @@ public class ControllerRecord implements Controller {
 	@Override
 	public int getStartY() {
 		return startY;
+	}
+	@Override
+	public Team getTeam() {
+		return team;
 	}
 
 }

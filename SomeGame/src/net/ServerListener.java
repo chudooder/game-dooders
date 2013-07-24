@@ -15,6 +15,7 @@ public class ServerListener extends Thread {
 	static final byte PRINT = 1;
 	static final byte RESET = 2;
 	static final byte START = 3;
+	static final byte INIT = 4;
 	
 	public ServerListener(Server main, Socket socket) {
 		super("Listener");
@@ -23,6 +24,7 @@ public class ServerListener extends Thread {
 			this.main = main;
 			in = socket.getInputStream();
 			out = socket.getOutputStream();
+			sendMessage(new byte[] {0, INIT, main.getCount()});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

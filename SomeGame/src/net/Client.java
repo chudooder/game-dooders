@@ -53,6 +53,9 @@ public class Client {
 	private void processInput(byte[] line) {
 		if(line.length > 0)
 			messages.add(line);
+		if(line[1] == ServerListener.INIT) {
+			team = Team.getTeam(line[2]);
+		}
 	}
 	
 	public ArrayList<byte[]> getMessages() {

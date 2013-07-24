@@ -11,4 +11,5 @@ public interface Controller {
 	int getStartX();
 	int getStartY();
 	Weapon getWeapon();
+	Team getTeam();
 }

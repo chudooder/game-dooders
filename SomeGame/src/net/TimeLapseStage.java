@@ -16,8 +16,7 @@ import chu.engine.anim.Renderer;
 public class TimeLapseStage extends Stage {
 
 	public Merc controlledMerc;
-	public ArrayList<ControllerRecord> blueTeamRecord;
-	public ArrayList<ControllerRecord> redTeamRecord;
+	public ArrayList<ControllerRecord> records;
 	public int roundNumber;
 	public int roundTimer;
 	public boolean roundStarted;
@@ -31,7 +30,7 @@ public class TimeLapseStage extends Stage {
 	
 	public TimeLapseStage() {
 		super();
-		blueTeamRecord = new ArrayList<>();
+		records = new ArrayList<>();
 		roundTimer = 0;
 		roundNumber = 0;
 		roundStarted = false;
@@ -118,28 +117,27 @@ public class TimeLapseStage extends Stage {
 		int x = 320 + (int)(Math.random()*128-64);
 		int y = 240 + (int)(Math.random()*128-64);
 		controlledMerc = new Merc(this, x, y, new NetworkController(true), 
-				Team.BLUE, choice);
+				TimeLapse.getClient().getTeam(), choice);
 		choice.setOwner(controlledMerc);
 		Camera cam = new Camera(controlledMerc, 16, 16);
 		Renderer.setCamera(cam);
 		AudioPlayer.setCamera(cam);
 		addEntity(controlledMerc);
-		for(ControllerRecord record : blueTeamRecord) {
-			Merc m = new Merc(this, record.getStartX(), 
-					record.getStartY(), record, Team.BLUE, record.getWeapon());
+		for(ControllerRecord record : records) {
+			Merc m = new Merc(this, record.getStartX(), record.getStartY(), 
+					record, record.getTeam(), record.getWeapon());
 			addEntity(m);
 		}
 		preRoundStarted = true;
 	}
 	
 	private void doEndOfRound() {
-		blueTeamRecord.add((ControllerRecord) controlledMerc.getController().getRecord());
+		records.add((ControllerRecord) controlledMerc.getController().getRecord());
 		for(Entity e : entities) {
 			if(e instanceof Merc) {
 				e.destroy();
 			}
 		}
-
 		roundNumber++;
 		roundTimer = 0;
 		preRoundTimer = 0;
