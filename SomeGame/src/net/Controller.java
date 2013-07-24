@@ -8,4 +8,8 @@ public interface Controller {
 	long getSeed();
 	void setSeed(long s);
 	void set(Merc m);
+	int getStartX();
+	int getStartY();
+	Weapon getWeapon();
+	Team getTeam();
 }

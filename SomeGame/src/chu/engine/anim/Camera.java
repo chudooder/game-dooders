@@ -35,19 +35,31 @@ public class Camera {
 	}
 	
 	public int getX() {
-		return center.x + offsetX;
+		if(center != null)
+			return center.x + offsetX;
+		else
+			return Game.getWindowWidth()/2;
 	}
 	
 	public int getY() {
-		return center.y + offsetY;
+		if(center != null)
+			return center.y + offsetY;
+		else
+			return Game.getWindowHeight()/2;
 	}
 	
 	public int getScreenX() {
-		return center.x + offsetX - Game.getWindowWidth()/2;
+		if(center != null)
+			return center.x + offsetX - Game.getWindowWidth()/2;
+		else
+			return 0;
 	}
 	
 	public int getScreenY() {
-		return center.y + offsetY - Game.getWindowHeight()/2;
+		if(center != null)
+			return center.y + offsetY - Game.getWindowHeight()/2;
+		else
+			return 0;
 	}
 
 }

@@ -10,7 +10,8 @@ public abstract class Entity implements Comparable<Entity> {
 	public static final int UPDATE_PRIORITY_PLAYER = 2;
 	public static final int UPDATE_PRIORITY_ENEMY = 3;
 	
-	public static final float RENDER_PRIORITY_HUD = 0.0f;
+	public static final float RENDER_PRIORITY_MENU = 0.0f;
+	public static final float RENDER_PRIORITY_HUD = 0.05f;
 	public static final float RENDER_PRIORITY_TERRAIN = 0.1f;
 	public static final float RENDER_PRIORITY_SHADOW = 0.2f;
 	public static final float RENDER_PRIORITY_ENEMY = 0.5f;

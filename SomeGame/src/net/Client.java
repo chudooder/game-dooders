@@ -14,6 +14,7 @@ public class Client {
 	InputStream in;
 	boolean open = true;
 	public volatile ArrayList<byte[]> messages;
+	private Team team;
 	
 	public Client() {
 		messages = new ArrayList<>();
@@ -50,14 +51,11 @@ public class Client {
 	}
 	
 	private void processInput(byte[] line) {
-		// Place messages in a backlog until the game retrieves them
-//		System.out.print("CLIENT RECIEVE: ");
-//		for(byte c : line) {
-//			System.out.print(c + " ");
-//		}
-//		System.out.println();
 		if(line.length > 0)
 			messages.add(line);
+		if(line[1] == ServerListener.INIT) {
+			team = Team.getTeam(line[2]);
+		}
 	}
 	
 	public ArrayList<byte[]> getMessages() {
@@ -81,6 +79,10 @@ public class Client {
 		} catch (IOException e) {
 			System.err.println("CLIENT Unable to send message!");
 		}
+	}
+	
+	public Team getTeam() {
+		return team;
 	}
 
 }

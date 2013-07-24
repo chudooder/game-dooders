@@ -10,5 +10,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lwjgl-2.9.0/jar/jogg-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lwjgl-2.9.0/jar/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Shawn/git/game-dooders/SomeGame/jts/lib/jts-1.13.jar" sourcepath="jts-1.8.0/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

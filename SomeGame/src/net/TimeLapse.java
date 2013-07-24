@@ -42,15 +42,17 @@ public class TimeLapse extends Game {
 		System.out.println("F2: Stop recording");
 		System.out.println("F3: Play back recording");
 		System.out.println("F4: Clear recording");
+		
 		Thread server = new Thread() {
 			public void run() {
 				new Server(5678);
 			}
 		};
+		
 		Thread client = new Thread() {
 			public void run() {
 				TimeLapse game = new TimeLapse();
-				game.init(640,480);
+				game.init(640,480,"Time Lapse");
 				game.loop();
 			}
 		};
@@ -81,9 +83,9 @@ public class TimeLapse extends Game {
 		return b;
 	}
 	
-	public void init(int width, int height) {
-		super.init(width, height);
-		Display.setVSyncEnabled(true);
+	public void init(int width, int height, String name) {
+		super.init(width, height, name);
+//		Display.setVSyncEnabled(true);
 		client = new Client();
 		try{
 			cursorTex = TextureLoader.getTexture("PNG", 
@@ -103,14 +105,9 @@ public class TimeLapse extends Game {
 				new Font("Open Sans", Font.BOLD, 17), false);
 		
 		currentStage = new TimeLapseStage();
-		Merc player = new Merc(currentStage, 320, 240);
-		currentStage.addEntity(player);
-		currentStage.controlledMerc = player;
-		Camera playerCam = new Camera(player, 16, 16);
-		Renderer.setCamera(playerCam);
-		AudioPlayer.setCamera(playerCam);
 		currentStage.addEntity(new ClickyTester(currentStage, 0, 0));
 		currentStage.addEntity(new Block(currentStage, 64, 64, 64, 64));
+		currentStage.addEntity(new WeaponSelectMenu(currentStage, 0, 0));
 		
 		currentStage.processAddStack();
 		

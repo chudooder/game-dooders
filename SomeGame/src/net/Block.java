@@ -31,7 +31,7 @@ public class Block extends Entity {
 		hitbox = new RectangleHitbox(this, 0, 0, 32, 32);
 		width = 32;
 		height = 32;
-		renderDepth = Entity.RENDER_PRIORITY_TERRAIN;
+		renderDepth = RENDER_PRIORITY_TERRAIN;
 	}
 	
 	public Block(TimeLapseStage stage, int x, int y, int width, int height) {
@@ -40,7 +40,7 @@ public class Block extends Entity {
 		hitbox = new RectangleHitbox(this, 0, 0, width, height);
 		this.width = width;
 		this.height = height;
-		renderDepth = Entity.RENDER_PRIORITY_TERRAIN;
+		renderDepth = RENDER_PRIORITY_TERRAIN;
 	}
 	
 	@Override

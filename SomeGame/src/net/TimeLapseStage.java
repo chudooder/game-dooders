@@ -1,6 +1,9 @@
 package net;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.lwjgl.input.Keyboard;
 
 import chu.engine.Collideable;
 import chu.engine.Entity;
@@ -13,10 +16,13 @@ import chu.engine.anim.Renderer;
 public class TimeLapseStage extends Stage {
 
 	public Merc controlledMerc;
-	public ArrayList<ControllerRecord> blueTeamRecord;
-	public ArrayList<ControllerRecord> redTeamRecord;
+	public ArrayList<ControllerRecord> records;
 	public int roundNumber;
 	public int roundTimer;
+	public boolean roundStarted;
+	public int preRoundTimer = 0;
+	public boolean preRoundStarted = false;
+	public static final int PRE_ROUND_TIMER = 180;
 	public static final int ROUND_LENGTH = 900;
 	
 	//Placeholder extension of Stage. Use this instead of the default class.
@@ -24,12 +30,28 @@ public class TimeLapseStage extends Stage {
 	
 	public TimeLapseStage() {
 		super();
-		blueTeamRecord = new ArrayList<>();
+		records = new ArrayList<>();
 		roundTimer = 0;
 		roundNumber = 0;
+		roundStarted = false;
 	}
 	
 	public void beginStep() {
+		HashMap<Integer, Boolean> keys = TimeLapse.getKeys();
+		for(int key : keys.keySet()) {
+			if(key == Keyboard.KEY_F3) { 
+				TimeLapse.getClient().sendMessage(new byte[] {0, 3});
+				System.out.println("asdf");
+			}
+		}
+		
+		ArrayList<byte[]> messages = TimeLapse.getServerMessages();
+		for(byte[] line : messages) {
+			if(line[1] == 3) { 		//START
+				roundStarted = true;
+			}
+		}
+		
 		for(Entity e : entities) {
 			e.beginStep();
 		}
@@ -50,10 +72,27 @@ public class TimeLapseStage extends Stage {
 		for(Entity e : entities) {
 			e.endStep();
 		}
-		roundTimer++;
-		if(roundTimer >= ROUND_LENGTH) {
-			doEndOfRound();
+		if(roundStarted) {
+			roundTimer++;
+			if(roundTimer >= ROUND_LENGTH) {
+				doEndOfRound();
+			}
 		}
+		if(preRoundStarted) {
+			preRoundTimer++;
+			if(preRoundTimer >= PRE_ROUND_TIMER) {
+				roundStarted = true;
+			}
+		}
+		ArrayList<byte[]> messages = TimeLapse.getServerMessages();
+		for(byte[] line : messages) {
+			if(line[0] == 2) {
+				roundTimer = 0;
+				roundNumber = 0;
+				System.out.println("asdfasdfa");
+			}
+		}
+		
 		processAddStack();
 		processRemoveStack();
 	}
@@ -74,24 +113,37 @@ public class TimeLapseStage extends Stage {
 		}
 	}
 	
+	public void startRound(Weapon choice) {
+		int x = 320 + (int)(Math.random()*128-64);
+		int y = 240 + (int)(Math.random()*128-64);
+		controlledMerc = new Merc(this, x, y, new NetworkController(true), 
+				TimeLapse.getClient().getTeam(), choice);
+		choice.setOwner(controlledMerc);
+		Camera cam = new Camera(controlledMerc, 16, 16);
+		Renderer.setCamera(cam);
+		AudioPlayer.setCamera(cam);
+		addEntity(controlledMerc);
+		for(ControllerRecord record : records) {
+			Merc m = new Merc(this, record.getStartX(), record.getStartY(), 
+					record, record.getTeam(), record.getWeapon());
+			addEntity(m);
+		}
+		preRoundStarted = true;
+	}
+	
 	private void doEndOfRound() {
-		blueTeamRecord.add((ControllerRecord) controlledMerc.getController().getRecord());
+		records.add((ControllerRecord) controlledMerc.getController().getRecord());
 		for(Entity e : entities) {
 			if(e instanceof Merc) {
 				e.destroy();
 			}
 		}
-		controlledMerc = new Merc(this, 320, 240, new NetworkController(), Team.BLUE);
-		Camera cam = new Camera(controlledMerc, 16, 16);
-		Renderer.setCamera(cam);
-		AudioPlayer.setCamera(cam);
-		addEntity(controlledMerc);
-		for(ControllerRecord record : blueTeamRecord) {
-			Merc m = new Merc(this, 320, 240, record, Team.BLUE);
-			addEntity(m);
-		}
 		roundNumber++;
 		roundTimer = 0;
+		preRoundTimer = 0;
+		roundStarted = false;
+		preRoundStarted = false;
+		addEntity(new WeaponSelectMenu(this, 0, 0));
 	}
 	
 	public boolean checkCollision(Entity e, Class<Block> c, int x, int y) {

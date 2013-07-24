@@ -16,6 +16,14 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import com.vividsolutions.jts.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+
+
 import chu.engine.Collideable;
 import chu.engine.Entity;
 import chu.engine.Game;
@@ -40,7 +48,7 @@ public class Merc extends Entity implements Collideable {
 	private Controller controller;
 	public int centerX;
 	public int centerY;
-	private int frame;
+	private long frame;
 	private int health;
 	private int movespeed;
 	private boolean renderShadows;
@@ -51,21 +59,21 @@ public class Merc extends Entity implements Collideable {
 			TEX_TEXTURE = TextureLoader.getTexture("PNG",
 					ResourceLoader.getResourceAsStream("res/guy.png"));
 			TEX_TIMELINE = TextureLoader.getTexture("PNG",
-					ResourceLoader.getResourceAsStream("res/timelinehud.png"));
+					ResourceLoader.getResourceAsStream("res/hud/timelinehud.png"));
 			TEX_HEALTHHUD = TextureLoader.getTexture("PNG",
-					ResourceLoader.getResourceAsStream("res/healthhud.png"));
+					ResourceLoader.getResourceAsStream("res/hud/healthhud.png"));
 			SFX_HURT = AudioLoader.getAudio("OGG",
-					ResourceLoader.getResourceAsStream("res/hurt.ogg"));
+					ResourceLoader.getResourceAsStream("res/sound/hurt.ogg"));
 		} catch (IOException e) {
 			System.err.println("Resource not found: guy.png");
 		}
 	}
-
-	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
+	
+	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t, Weapon w) {
 		super(s, x, y);
 		sprite.addAnimation("LOOP", TEX_TEXTURE, 32, 32, 2, 1000);
 		hitbox = new RectangleHitbox(this, 5, 5, 22, 22);
-		renderDepth = Entity.RENDER_PRIORITY_PLAYER;
+		renderDepth = RENDER_PRIORITY_PLAYER;
 		// Is there a way to get the seed?
 		random = new Random();
 		if (c.getSeed() == 0) {
@@ -75,8 +83,37 @@ public class Merc extends Entity implements Collideable {
 		} else {
 			random.setSeed(c.getSeed());
 		}
-		weapon = new Pistol(this);
+		weapon = w;
+		w.setOwner(this);
 		controller = c;
+		c.set(this);
+		health = 100;
+		movespeed = 2;
+		team = t;
+		renderShadows = true;
+	}
+
+	public Merc(TimeLapseStage s, int x, int y, Controller c, Team t) {
+		super(s, x, y);
+		sprite.addAnimation("LOOP", TEX_TEXTURE, 32, 32, 2, 1000);
+		hitbox = new RectangleHitbox(this, 5, 5, 22, 22);
+		renderDepth = RENDER_PRIORITY_PLAYER;
+		// Is there a way to get the seed?
+		random = new Random();
+		if (c.getSeed() == 0) {
+			long seed = Double.doubleToLongBits(Math.random());
+			random.setSeed(seed);
+			c.setSeed(seed);
+		} else {
+			random.setSeed(c.getSeed());
+		}
+		controller = c;
+		if(controller instanceof ControllerRecord) {
+			Weapon w = controller.getWeapon();
+			weapon = w.createNew(this);
+		} else {
+			weapon = null;
+		}
 		c.set(this);
 		health = 100;
 		movespeed = 2;
@@ -86,17 +123,17 @@ public class Merc extends Entity implements Collideable {
 
 
 	public Merc(TimeLapseStage s, int x, int y) {
-		this(s, x, y, new NetworkController(), Team.BLUE);
+		this(s, x, y, new NetworkController(true), Team.BLUE);
 	}
 
 	@Override
 	public void beginStep() {
-		weapon.update();
+		if(weapon != null)
+			weapon.update();
 
 		frame = stage.roundTimer;
 		Map<Input, Object> inputs = controller.getInput(frame);
 		if (inputs == null) {
-			System.out.println("lol "+frame);
 			destroy();
 			return;
 		}
@@ -135,6 +172,10 @@ public class Merc extends Entity implements Collideable {
 			if (key == Keyboard.KEY_F1 && keys.get(key)) {
 				renderShadows = !renderShadows;
 			}
+			if (key == Keyboard.KEY_F2 && keys.get(key)) {
+				TimeLapse.getClient().sendMessage(
+						new byte[] {0, 2});
+			}
 		}
 
 		centerX = x + 16;
@@ -150,10 +191,13 @@ public class Merc extends Entity implements Collideable {
 	public void render() {
 		sprite.renderRotated(x, y, renderDepth, angle);
 		if (controller instanceof NetworkController) {
-			weapon.renderHUD();
+			if(weapon != null)
+				weapon.render();
 			renderTimelineHUD();
 			renderHealthHUD();
-			if(renderShadows) renderShadows();
+//			VisibilityRenderer.addShadow(frame, getShadowGeometry());
+//			if(renderShadows) renderShadows();
+//			if(renderShadows) VisibilityRenderer.render(frame);
 		}
 
 
@@ -220,9 +264,43 @@ public class Merc extends Entity implements Collideable {
 				best = dist;
 
 		}
-		// Renderer.drawLine(centerX, centerY, pointX, pointY, 1, Color.gray);
 
 		return best;
+	}
+	
+	private Geometry getShadowGeometry() {
+		//Start with the hard fov
+		float start = (float) (angle + Math.PI/4);
+		float innerRad = 32;
+		float outerRad = 128;
+		Color shadowColor = new Color(0, 0, 0);
+		
+		float stepSize = (float) (Math.PI/8);
+		Coordinate[] coords = new Coordinate[25];
+		int a = 0;
+		int b = 23;
+		for(float i = start; i < start + Math.PI*1.4; i+=stepSize) {
+			float x0 = (float)(centerX + innerRad*Math.cos(i));
+			float y0 = (float)(centerY + innerRad*Math.sin(i));
+			float x1 = (float)(centerX + outerRad*Math.cos(i));
+			float y1 = (float)(centerY + outerRad*Math.sin(i));
+			coords[a] = new Coordinate(x0, y0);
+			coords[b] = new Coordinate(x1, y1);
+			a++;
+			b--;
+		}
+		coords[24] = coords[0];
+		
+		LinearRing shadow = new GeometryFactory().createLinearRing(coords);
+		Polygon poly = new Polygon(shadow, null, new GeometryFactory());
+//		Coordinate[] coo = poly.getCoordinates();
+//		for(int i=0; i<coo.length; i++) {
+//			Coordinate c = coo[i];
+//			Renderer.drawSquare((float)c.x, (float)c.y, 2, Entity.RENDER_PRIORITY_HUD, Color.red);
+//			TimeLapse.guiFont.drawString((float)c.x, (float)c.y, ""+i);
+//		}
+		
+		return poly;
 	}
 
 	private void renderShadows() {
@@ -243,9 +321,9 @@ public class Merc extends Entity implements Collideable {
 			float x3 = (float)(centerX + outerRad*Math.cos(i+stepSize));
 			float y3 = (float)(centerY + outerRad*Math.sin(i+stepSize));
 			Renderer.drawTriangle(x1, y1, x2, y2, x3, y3, 
-					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+					RENDER_PRIORITY_SHADOW, shadowColor);
 			Renderer.drawTriangle(x0, y0, x1, y1, x2, y2, 
-					Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+					RENDER_PRIORITY_SHADOW, shadowColor);
 		}
 		
 		
@@ -341,12 +419,12 @@ public class Merc extends Entity implements Collideable {
 				if (i != vertices.size() - 1) {
 					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
 							vertices.get(i + 1).x, vertices.get(i + 1).y,
-							Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+							RENDER_PRIORITY_SHADOW, shadowColor);
 				}
 				if (i != 0) {
 					Renderer.drawTriangle(v.x, v.y, outer.x, outer.y,
 							prevOuter.x, prevOuter.y,
-							Entity.RENDER_PRIORITY_SHADOW, shadowColor);
+							RENDER_PRIORITY_SHADOW, shadowColor);
 				}
 				prevOuter = outer;
 //				TimeLapse.guiFont.drawString(v.x, v.y, "" + i);
@@ -359,14 +437,14 @@ public class Merc extends Entity implements Collideable {
 		int hx = cam.getScreenX();
 		int hy = cam.getScreenY()+416;
 		Renderer.render(TEX_HEALTHHUD, 0, 0, 1, 1, 
-				hx, hy, hx+64, hy+64, Entity.RENDER_PRIORITY_HUD);
+				hx, hy, hx+64, hy+64, RENDER_PRIORITY_HUD);
 		int barheight = health*41/100;
 		Renderer.drawRectangle(hx+24, hy+52, hx+39, hy+52-barheight, 
-				Entity.RENDER_PRIORITY_HUD, new Color(238,238,238));
+				RENDER_PRIORITY_HUD, new Color(238,238,238));
 		if(barheight >= 13) {
 			int subbar = Math.min(15, barheight-13);
 			Renderer.drawRectangle(hx+11, hy+39, hx+52, hy+39-subbar, 
-					Entity.RENDER_PRIORITY_HUD, new Color(238,238,238));
+					RENDER_PRIORITY_HUD, new Color(238,238,238));
 		}
 		TimeLapse.guiFont.drawString(hx+60, hy+20, ""+health);
 	}
@@ -375,13 +453,13 @@ public class Merc extends Entity implements Collideable {
 		Camera cam = Renderer.getCamera();
 		int hx = cam.getScreenX()+200;
 		int hy = cam.getScreenY()+450;
-		int barlength = Math.min(238,238*frame/TimeLapseStage.ROUND_LENGTH);
+		long barlength = Math.min(238,238*frame/TimeLapseStage.ROUND_LENGTH);
 		Renderer.drawRectangle(hx+13,hy+5,hx+13+barlength,hy+10,
-				Entity.RENDER_PRIORITY_HUD,new Color(200,0,0));
+				RENDER_PRIORITY_HUD,new Color(200,0,0));
 		Renderer.render(TEX_TIMELINE, 0, 0, 1, 1, 
 				hx, hy, 
 				hx+256, hy+16, 
-				Entity.RENDER_PRIORITY_HUD);
+				RENDER_PRIORITY_HUD);
 
 	}
 
@@ -426,8 +504,13 @@ public class Merc extends Entity implements Collideable {
 
 	@Override
 	public void endStep() {
-		// TODO Auto-generated method stub
 		
+	}
+
+
+	public void setWeapon(Weapon w) {
+		this.weapon = w;
+		controller.set(this);
 	}
 
 }

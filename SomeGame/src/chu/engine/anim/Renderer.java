@@ -50,11 +50,12 @@ public class Renderer {
 		
 		glPushMatrix();
 		glTranslatef(x0, y0, depth);
+		glTranslatef(transform.translateX, transform.translateY, 0);
 		glScalef(transform.scaleX, transform.scaleY, 0);
-		glTranslatef(-x0, -y0, -depth);
-		glTranslatef((x0+x1)/2, (y0+y1)/2, depth);
+		glTranslatef(-x0 + (x0+x1)/2, -y0 + (y0+y1)/2, 0);
 		glRotatef(transform.rotation/(float)Math.PI*180, 0, 0, 1);
 		glTranslatef(-(x0+x1)/2,-(y0+y1)/2, -depth);
+
 		
 		
 	    // draw quad
@@ -108,6 +109,21 @@ public class Renderer {
 		
 	}
 	
+	public static void drawLine(double x0, double y0, double x, double y,
+			float width, float depth, Color c1, Color c2) {
+		glDisable(GL_TEXTURE_2D);
+		glLineWidth(width);
+		
+		//glLoadIdentity();
+		glBegin(GL_LINES);
+			glColor4f(c1.r, c1.g, c1.b, c1.a);
+			glVertex3d(x0,y0,depth);
+			glColor4f(c2.r, c2.g, c2.b, c2.a);
+			glVertex3d(x,y,depth);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+	}
+	
 	public static void drawTriangle(float x0, float y0, float x, float y, 
 			float x2, float y2, float depth, Color c) {
 		c.bind();
@@ -122,6 +138,19 @@ public class Renderer {
 		
 	}
 	
+	public static void drawTriangle(double x0, double y0, double x1, double y1,
+			double x2, double y2, float depth, Color c) {
+		c.bind();
+		glDisable(GL_TEXTURE_2D);
+		glColor4d(c.r, c.g, c.b, c.a);
+		glBegin(GL_TRIANGLES);
+			glVertex3d(x0,y0,depth);
+			glVertex3d(x1,y1,depth);
+			glVertex3d(x2,y2,depth);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+	}
+	
 	public static void setCamera(Camera c) {
 		camera = c;
 	}
@@ -129,6 +158,5 @@ public class Renderer {
 	public static Camera getCamera() {
 		return camera;
 	}
-	
 
 }
